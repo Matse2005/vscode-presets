@@ -1,0 +1,9 @@
+{
+  "vscodePresets.enabled": [
+    "php",
+    "symfony",
+    "oro",
+    "kevin"
+  ],
+  "vscodePresets.oroDocumentation": "~/Work/orodocumentation"
+}

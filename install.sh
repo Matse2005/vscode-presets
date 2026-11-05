@@ -39,10 +39,10 @@ mkdir -p "$state"
 cd "$project"
 
 if [ ! -f "$local_settings" ]; then
-    printf '{\n  "vscodePresets.enabled": []\n}\n' > "$local_settings"
-    echo "Created .vscode/settings.local.json. List the presets for this project in vscodePresets.enabled" >&2
-    echo "(available: $(cd "$repo/presets" && ls | grep -vx base | tr '\n' ' ')) and run this again." >&2
-    exit 1
+    cp "$repo/settings.local.default.json" "$local_settings"
+    echo "Created .vscode/settings.local.json from settings.local.default.json; change vscodePresets.enabled there"
+    available=$(for dir in "$repo"/presets/*/; do name=$(basename "$dir"); [ "$name" = base ] || printf '%s ' "$name"; done)
+    echo "if this project needs other presets (available: ${available% })."
 fi
 if ! jq -e 'type == "object"' "$local_settings" >/dev/null 2>&1; then
     echo ".vscode/settings.local.json is not valid JSON (comments are not allowed) or not an object; fix it first." >&2

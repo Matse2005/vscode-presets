@@ -17,7 +17,8 @@
     "!iterator sequence",
     "!abstract scalar",
     "!closure scalar",
-    "!returns_clone sequence"
+    "!returns_clone sequence",
+    "!service_closure scalar"
   ],
   "intelephense.files.exclude+": [
     "**/var/**"

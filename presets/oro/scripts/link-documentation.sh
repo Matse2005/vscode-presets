@@ -8,7 +8,7 @@ if [ -z "$src" ]; then
     echo "Set vscodePresets.oroDocumentation in .vscode/settings.local.json to the Oro documentation checkout."
     exit 1
 fi
-case $src in "~"|"~/"*) src=$HOME${src#\~} ;; esac
+case $src in \~|\~/*) src=$HOME${src#\~} ;; esac
 
 link="${1:?project root}/.orodocumentation"
 if [ ! -d "$src" ]; then
