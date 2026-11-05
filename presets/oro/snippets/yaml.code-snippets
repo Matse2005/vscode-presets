@@ -1,0 +1,817 @@
+{
+    "Oro: datagrid": {
+        "scope": "yaml",
+        "prefix": "oro-datagrid",
+        "body": [
+            "${1:app-entity-grid}:",
+            "\textended_entity_name: ${2:App\\\\Entity\\\\Entity}",
+            "\tacl_resource: ${3:app_entity_view}",
+            "\tsource:",
+            "\t\ttype: orm",
+            "\t\tquery:",
+            "\t\t\tselect:",
+            "\t\t\t\t- ${4:e}.id",
+            "\t\t\t\t- $4.${5:name}",
+            "\t\t\tfrom:",
+            "\t\t\t\t- { table: $2, alias: $4 }",
+            "\tcolumns:",
+            "\t\t$5:",
+            "\t\t\tlabel: ${6:app.entity.$5.label}",
+            "\tsorters:",
+            "\t\tcolumns:",
+            "\t\t\t$5:",
+            "\t\t\t\tdata_name: $4.$5",
+            "\t\tdefault:",
+            "\t\t\t$5: ASC",
+            "\tfilters:",
+            "\t\tcolumns:",
+            "\t\t\t$5:",
+            "\t\t\t\ttype: string",
+            "\t\t\t\tdata_name: $4.$5",
+            "\tproperties:",
+            "\t\tid: ~",
+            "$0"
+        ],
+        "description": "Datagrid on an ORM query with one column, sorter and filter. Goes under the datagrids: key in config/oro/datagrids/*.yml."
+    },
+    "Oro: datagrid column": {
+        "scope": "yaml",
+        "prefix": "oro-datagrid-column",
+        "body": [
+            "${1:field}:",
+            "\tlabel: ${2:app.entity.$1.label}",
+            "\tfrontend_type:${3|string,integer,decimal,boolean,date,datetime,select,html,twig|}"
+        ],
+        "description": "Datagrid column with a frontend type. Use type: twig plus template: for custom rendering."
+    },
+    "Oro: datagrid filter": {
+        "scope": "yaml",
+        "prefix": "oro-datagrid-filter",
+        "body": [
+            "${1:field}:",
+            "\ttype: ${2|string,number,number-range,datetime,date,boolean,choice,enum,entity|}",
+            "\tdata_name: ${3:e}.$1"
+        ],
+        "description": "Datagrid filter. Goes under filters.columns."
+    },
+    "Oro: datagrid row actions": {
+        "scope": "yaml",
+        "prefix": "oro-datagrid-actions",
+        "body": [
+            "properties:",
+            "\tid: ~",
+            "\tview_link:",
+            "\t\ttype: url",
+            "\t\troute: ${1:app_entity_view}",
+            "\t\tparams: [ id ]",
+            "actions:",
+            "\tview:",
+            "\t\ttype: navigate",
+            "\t\tacl_resource: ${2:app_entity_view}",
+            "\t\tlabel: oro.grid.action.view",
+            "\t\ticon: eye",
+            "\t\tlink: view_link",
+            "\t\trowAction: true"
+        ],
+        "description": "URL property plus a navigate row action. rowAction: true makes a click on the row open the link."
+    },
+    "Oro: navigation menu item": {
+        "scope": "yaml",
+        "prefix": "oro-navigation",
+        "body": [
+            "navigation:",
+            "\tmenu_config:",
+            "\t\titems:",
+            "\t\t\t${1:app_entity_index}:",
+            "\t\t\t\tlabel: ${2:app.menu.entity.label}",
+            "\t\t\t\troute: ${3:$1}",
+            "\t\ttree:",
+            "\t\t\tapplication_menu:",
+            "\t\t\t\tchildren:",
+            "\t\t\t\t\t${4|system_tab,sales_tab,customers_tab,products_tab,reports_tab|}:",
+            "\t\t\t\t\t\tchildren:",
+            "\t\t\t\t\t\t\t$1: ~",
+            "\ttitles:",
+            "\t\t$3: ~"
+        ],
+        "description": "Menu item, its place in the application menu and the page title. config/oro/navigation/*.yml."
+    },
+    "Oro: acl": {
+        "scope": "yaml",
+        "prefix": "oro-acl",
+        "body": [
+            "${1:app_entity_action}:",
+            "\tlabel: ${2:app.acl.$1.label}",
+            "\ttype: ${3|action,entity|}",
+            "\tgroup_name: \"$4\""
+        ],
+        "description": "ACL resource. type: entity also needs class: and permission:. Goes under acls: in config/oro/acls/*.yml."
+    },
+    "Oro: operation": {
+        "scope": "yaml",
+        "prefix": "oro-operation",
+        "body": [
+            "${1:app_entity_do_something}:",
+            "\tlabel: ${2:app.operation.$1.label}",
+            "\tdatagrids:",
+            "\t\t- ${3:app-entity-grid}",
+            "\tacl_resource: ${4:app_entity_update}",
+            "\torder: ${5:10}",
+            "\tbutton_options:",
+            "\t\ticon: ${6:fa-refresh}",
+            "\tpreconditions:",
+            "\t\t'@not_empty': \\$.data.id",
+            "\tactions:",
+            "\t\t- '@call_service_method':",
+            "\t\t\t\tservice: ${7:App\\\\Service}",
+            "\t\t\t\tmethod: ${8:handle}",
+            "\t\t\t\tmethod_parameters: [\\$.data.id]",
+            "\t\t- '@flash_message':",
+            "\t\t\t\tmessage: ${9:app.operation.$1.success}",
+            "\t\t\t\ttype: 'success'",
+            "$0"
+        ],
+        "description": "Datagrid operation that calls a service method on the row. Use entities: instead of datagrids: for a button on the view page."
+    },
+    "Oro: exclude default operations": {
+        "scope": "yaml",
+        "prefix": "oro-operation-exclude",
+        "body": [
+            "${1|DELETE,UPDATE,CLONE|}:",
+            "\texclude_entities:",
+            "\t\t- ${2:App\\\\Entity\\\\Entity}",
+            "\texclude_datagrids:",
+            "\t\t- ${3:app-entity-grid}"
+        ],
+        "description": "Hides a platform operation (delete, edit) for one entity and grid."
+    },
+    "Oro: action @call_service_method": {
+        "scope": "yaml",
+        "prefix": "oro-call-service",
+        "body": [
+            "- '@call_service_method':",
+            "\t\tservice: ${1:App\\\\Service}",
+            "\t\tmethod: ${2:handle}",
+            "\t\tmethod_parameters: [${3:\\$.data}]",
+            "\t\tattribute: ${4:\\$.result}"
+        ],
+        "description": "Calls a public service method. attribute stores the return value for later conditions."
+    },
+    "Oro: action @flash_message": {
+        "scope": "yaml",
+        "prefix": "oro-flash",
+        "body": [
+            "- '@flash_message':",
+            "\t\tmessage: ${1:app.message.key}",
+            "\t\ttype: '${2|success,info,warning,error|}'"
+        ],
+        "description": "Flash message after an operation or transition."
+    },
+    "Oro: action @redirect": {
+        "scope": "yaml",
+        "prefix": "oro-redirect",
+        "body": [
+            "- '@redirect':",
+            "\t\troute: ${1:app_entity_view}",
+            "\t\troute_parameters: { id: ${2:\\$.data.id} }"
+        ],
+        "description": "Redirect to a route after the action runs."
+    },
+    "Oro: action @assign_value": {
+        "scope": "yaml",
+        "prefix": "oro-assign",
+        "body": "- '@assign_value': [${1:\\$.target}, ${2:value}]",
+        "description": "Assigns a value to a property path."
+    },
+    "Oro: condition block": {
+        "scope": "yaml",
+        "prefix": "oro-conditions",
+        "body": [
+            "'@${1|and,or|}':",
+            "\t- '@equal': [${2:\\$.data.field}, ${3:value}]",
+            "\t- '@in': [${4:\\$.data.status.id}, [${5:'open'}]]",
+            "\t- '@not_empty': ${6:\\$.data.id}"
+        ],
+        "description": "Combined conditions for preconditions or conditions blocks."
+    },
+    "Oro: workflow": {
+        "scope": "yaml",
+        "prefix": "oro-workflow",
+        "body": [
+            "workflows:",
+            "\t${1:app_entity_flow}:",
+            "\t\tentity: ${2:App\\\\Entity\\\\Entity}",
+            "\t\tentity_attribute: ${3:entity}",
+            "\t\tstart_step: ${4:open}",
+            "\t\tdefaults:",
+            "\t\t\tactive: true",
+            "\t\tsteps:",
+            "\t\t\t$4:",
+            "\t\t\t\tallowed_transitions: [${5:close}]",
+            "\t\t\t${6:closed}:",
+            "\t\t\t\tallowed_transitions: []",
+            "\t\ttransitions:",
+            "\t\t\t$5:",
+            "\t\t\t\tstep_to: $6",
+            "\t\t\t\ttransition_definition: ${5}_definition",
+            "\t\ttransition_definitions:",
+            "\t\t\t${5}_definition:",
+            "\t\t\t\tactions: []",
+            "$0"
+        ],
+        "description": "Workflow with two steps and one transition. Large workflows split steps and transitions into imported files."
+    },
+    "Oro: workflow transition": {
+        "scope": "yaml",
+        "prefix": "oro-transition",
+        "body": [
+            "${1:transition_name}:",
+            "\tstep_to: ${2:step}",
+            "\tfrontend_options:",
+            "\t\ticon: '${3:fa-check}'",
+            "\ttransition_definition: ${1}_definition"
+        ],
+        "description": "Workflow transition. Add the matching entry under transition_definitions."
+    },
+    "Oro: api entity": {
+        "scope": "yaml",
+        "prefix": "oro-api-entity",
+        "body": [
+            "api:",
+            "\tentities:",
+            "\t\t${1:App\\\\Entity\\\\Entity}:",
+            "\t\t\tdocumentation_resource: '${2:@AppBundle/Resources/doc/api/entity.md}'",
+            "\t\t\tactions:",
+            "\t\t\t\t${3|create,update,delete,delete_list,update_list|}: ${4|false,true|}"
+        ],
+        "description": "Exposes an entity on the JSON:API. Changing this changes the public API contract."
+    },
+    "Oro: layout update": {
+        "scope": "yaml",
+        "prefix": "oro-layout",
+        "body": [
+            "layout:",
+            "\tactions:",
+            "\t\t- '@setBlockTheme':",
+            "\t\t\t\tthemes: '${1:@App/layouts/default/page/template.html.twig}'",
+            "\t\t- '@add':",
+            "\t\t\t\tid: ${2:block_id}",
+            "\t\t\t\tparentId: ${3:page_content}",
+            "\t\t\t\tblockType: ${4|container,block,text,link,button|}",
+            "$0"
+        ],
+        "description": "Storefront layout update (OroCommerce themes)."
+    },
+    "Oro: layout @remove / @move / @setOption": {
+        "scope": "yaml",
+        "prefix": "oro-layout-action",
+        "body": [
+            "- '@${1|remove,move,setOption|}':",
+            "\t\tid: ${2:block_id}$0"
+        ],
+        "description": "Layout action on an existing block. @move needs parentId, @setOption needs optionName and optionValue."
+    },
+    "Oro: imports": {
+        "scope": "yaml",
+        "prefix": "oro-imports",
+        "body": [
+            "imports:",
+            "\t- { resource: '${1:operations/file.yml}' }"
+        ],
+        "description": "Oro loads one file per config kind and key. Split files are pulled in through imports."
+    },
+    "Oro: datagrid enum column": {
+        "scope": "yaml",
+        "prefix": "oro-datagrid-enum",
+        "body": [
+            "${1:status}:",
+            "\tlabel: ${2:app.entity.$1.label}",
+            "\tfrontend_type: select",
+            "\tchoices: \"@oro_entity_extend.enum_value_provider->getEnumChoicesByCode('${3:app_entity_status}')\""
+        ],
+        "description": "Enum column shown as its label. Select it with IDENTITY(e.$1) as $1 and pair it with an enum filter."
+    },
+    "Oro: datagrid enum filter": {
+        "scope": "yaml",
+        "prefix": "oro-datagrid-enum-filter",
+        "body": [
+            "${1:status}:",
+            "\ttype: enum",
+            "\tdata_name: $1",
+            "\tenum_code: ${2:app_entity_status}"
+        ],
+        "description": "Filter on an enum field. Goes under filters.columns."
+    },
+    "Oro: datagrid twig column": {
+        "scope": "yaml",
+        "prefix": "oro-datagrid-twig",
+        "body": [
+            "${1:field}:",
+            "\tlabel: ${2:app.entity.$1.label}",
+            "\ttype: twig",
+            "\tfrontend_type: html",
+            "\ttemplate: '${3:@App/Datagrid/Property/$1.html.twig}'"
+        ],
+        "description": "Column rendered by a twig template. The template gets the row as record."
+    },
+    "Oro: datagrid join": {
+        "scope": "yaml",
+        "prefix": "oro-datagrid-join",
+        "body": [
+            "join:",
+            "\t${1|left,inner|}:",
+            "\t\t- { join: ${2:e}.${3:relation}, alias: ${4:r} }"
+        ],
+        "description": "Join in a datagrid query. Goes under source.query."
+    },
+    "Oro: datagrid where": {
+        "scope": "yaml",
+        "prefix": "oro-datagrid-where",
+        "body": [
+            "where:",
+            "\tand:",
+            "\t\t- ${1:e}.${2:field} = :${3:param}",
+            "bind_parameters:",
+            "\t- $3"
+        ],
+        "description": "Fixed condition on the grid query. where goes under source.query, bind_parameters under source; values come from the grid parameters."
+    },
+    "Oro: datagrid delete action": {
+        "scope": "yaml",
+        "prefix": "oro-datagrid-delete",
+        "body": [
+            "properties:",
+            "\tdelete_link:",
+            "\t\ttype: url",
+            "\t\troute: ${1:oro_api_delete_entity}",
+            "\t\tparams: [ id ]",
+            "actions:",
+            "\tdelete:",
+            "\t\ttype: delete",
+            "\t\tacl_resource: ${2:app_entity_delete}",
+            "\t\tlabel: oro.grid.action.delete",
+            "\t\ticon: trash",
+            "\t\tlink: delete_link"
+        ],
+        "description": "Delete row action. The route must answer a DELETE request."
+    },
+    "Oro: datagrid disable mass delete": {
+        "scope": "yaml",
+        "prefix": "oro-datagrid-mass-disable",
+        "body": [
+            "mass_actions:",
+            "\tdelete:",
+            "\t\tdisabled: true"
+        ],
+        "description": "Turns off the default mass delete on a grid."
+    },
+    "Oro: datagrid inline editing": {
+        "scope": "yaml",
+        "prefix": "oro-datagrid-inline",
+        "body": [
+            "inline_editing:",
+            "\tenable: true",
+            "\tbehaviour: ${1|enable_selected,enable_all|}",
+            "\tentity_name: ${2:App\\\\Entity\\\\Entity}"
+        ],
+        "description": "Inline editing. With enable_selected, mark columns with inline_editing: { enable: true }."
+    },
+    "Oro: datagrid options": {
+        "scope": "yaml",
+        "prefix": "oro-datagrid-options",
+        "body": [
+            "options:",
+            "\tentityHint: ${1:app.entity.entity_plural_label}",
+            "\tentity_pagination: true",
+            "\texport: ${2|true,false|}"
+        ],
+        "description": "Grid options: hint text, previous and next on the view page, and CSV export."
+    },
+    "Oro: datagrid extends": {
+        "scope": "yaml",
+        "prefix": "oro-datagrid-extends",
+        "body": [
+            "${1:app-entity-widget-grid}:",
+            "\textends: ${2:app-entity-grid}",
+            "\t$0"
+        ],
+        "description": "Grid that inherits another grid's config and overrides parts of it."
+    },
+    "Oro: operation with dialog form": {
+        "scope": "yaml",
+        "prefix": "oro-operation-dialog",
+        "body": [
+            "${1:app_entity_do_something}:",
+            "\tlabel: ${2:app.operation.$1.label}",
+            "\troutes:",
+            "\t\t- ${3:app_entity_view}",
+            "\tacl_resource: ${4:app_entity_update}",
+            "\tfrontend_options:",
+            "\t\ttitle: $2",
+            "\t\toptions:",
+            "\t\t\twidth: 500",
+            "\tattributes:",
+            "\t\t${5:reason}:",
+            "\t\t\tlabel: ${6:app.operation.$1.$5.label}",
+            "\t\t\ttype: string",
+            "\tform_options:",
+            "\t\tattribute_fields:",
+            "\t\t\t$5:",
+            "\t\t\t\tform_type: ${7:Symfony\\\\Component\\\\Form\\\\Extension\\\\Core\\\\Type\\\\TextareaType}",
+            "\t\t\t\toptions:",
+            "\t\t\t\t\trequired: true",
+            "\tactions:",
+            "\t\t- '@call_service_method':",
+            "\t\t\t\tservice: ${8:App\\\\Service}",
+            "\t\t\t\tmethod: ${9:handle}",
+            "\t\t\t\tmethod_parameters: [\\$.data, \\$.$5]",
+            "$0"
+        ],
+        "description": "Operation that opens a dialog with a form before it runs. Each form field needs a matching attribute."
+    },
+    "Oro: operation on entity page": {
+        "scope": "yaml",
+        "prefix": "oro-operation-entity",
+        "body": [
+            "${1:app_entity_do_something}:",
+            "\tlabel: ${2:app.operation.$1.label}",
+            "\tentities:",
+            "\t\t- ${3:App\\\\Entity\\\\Entity}",
+            "\troutes:",
+            "\t\t- ${4:app_entity_view}",
+            "\tacl_resource: ${6:app_entity_update}",
+            "\tbutton_options:",
+            "\t\ticon: ${7:fa-check}",
+            "\tactions:",
+            "\t\t- $0"
+        ],
+        "description": "Button on the entity view page. \\$.data is the entity."
+    },
+    "Oro: action group": {
+        "scope": "yaml",
+        "prefix": "oro-action-group",
+        "body": [
+            "action_groups:",
+            "\t${1:app_do_something}:",
+            "\t\tparameters:",
+            "\t\t\t${2:data}:",
+            "\t\t\t\ttype: ${3:App\\\\Entity\\\\Entity}",
+            "\t\tconditions:",
+            "\t\t\t'@not_empty': \\$.$2",
+            "\t\tactions:",
+            "\t\t\t- $0"
+        ],
+        "description": "Reusable list of actions with typed parameters, called with @run_action_group."
+    },
+    "Oro: action @run_action_group": {
+        "scope": "yaml",
+        "prefix": "oro-run-action-group",
+        "body": [
+            "- '@run_action_group':",
+            "\t\taction_group: ${1:app_do_something}",
+            "\t\tparameters_mapping:",
+            "\t\t\t${2:data}: ${3:\\$.data}"
+        ],
+        "description": "Runs an action group and maps the current context into its parameters."
+    },
+    "Oro: action @tree": {
+        "scope": "yaml",
+        "prefix": "oro-tree",
+        "body": [
+            "- '@tree':",
+            "\t\tconditions:",
+            "\t\t\t'@not_empty': ${1:\\$.data.id}",
+            "\t\tactions:",
+            "\t\t\t- $0"
+        ],
+        "description": "Runs a group of actions only when the conditions hold."
+    },
+    "Oro: action @traverse": {
+        "scope": "yaml",
+        "prefix": "oro-traverse",
+        "body": [
+            "- '@traverse':",
+            "\t\tarray: ${1:\\$.items}",
+            "\t\tvalue: ${2:\\$.item}",
+            "\t\tactions:",
+            "\t\t\t- $0"
+        ],
+        "description": "Loops over a collection. key: stores the current key as well."
+    },
+    "Oro: action @create_entity": {
+        "scope": "yaml",
+        "prefix": "oro-create-entity",
+        "body": [
+            "- '@create_entity':",
+            "\t\tclass: ${1:App\\\\Entity\\\\Entity}",
+            "\t\tattribute: ${2:\\$.entity}",
+            "\t\tflush: ${3|true,false|}",
+            "\t\tdata:",
+            "\t\t\t${4:field}: ${5:\\$.value}"
+        ],
+        "description": "Creates and persists an entity and stores it in the attribute."
+    },
+    "Oro: action @find_entities": {
+        "scope": "yaml",
+        "prefix": "oro-find-entities",
+        "body": [
+            "- '@find_entities':",
+            "\t\tclass: ${1:App\\\\Entity\\\\Entity}",
+            "\t\twhere:",
+            "\t\t\t${2:field}: ${3:\\$.value}",
+            "\t\tattribute: ${4:\\$.entities}"
+        ],
+        "description": "Loads entities matching where (and/or order_by) into the attribute."
+    },
+    "Oro: action @request_entity": {
+        "scope": "yaml",
+        "prefix": "oro-request-entity",
+        "body": [
+            "- '@request_entity':",
+            "\t\tclass: ${1:App\\\\Entity\\\\Entity}",
+            "\t\tidentifier: ${2:\\$.id}",
+            "\t\tattribute: ${3:\\$.entity}"
+        ],
+        "description": "Loads one entity by id into the attribute."
+    },
+    "Oro: action @flush_entity": {
+        "scope": "yaml",
+        "prefix": "oro-flush",
+        "body": "- '@flush_entity': ${1:\\$.data}",
+        "description": "Persists and flushes the entity."
+    },
+    "Oro: action @translate": {
+        "scope": "yaml",
+        "prefix": "oro-translate",
+        "body": [
+            "- '@translate':",
+            "\t\tid: ${1:app.message.key}",
+            "\t\tattribute: ${2:\\$.message}",
+            "\t\tparams:",
+            "\t\t\t'%${3:name}%': ${4:\\$.data.name}"
+        ],
+        "description": "Translates a key into the attribute."
+    },
+    "Oro: action @refresh_grid": {
+        "scope": "yaml",
+        "prefix": "oro-refresh-grid",
+        "body": "- '@refresh_grid': [${1:app-entity-grid}]",
+        "description": "Reloads a datagrid on the page after the operation."
+    },
+    "Oro: condition @acl_granted": {
+        "scope": "yaml",
+        "prefix": "oro-acl-granted",
+        "body": "'@acl_granted': ['${1|VIEW,EDIT,CREATE,DELETE|}', ${2:\\$.data}]",
+        "description": "True when the current user has the permission on the object. A single ACL resource id also works."
+    },
+    "Oro: condition @not": {
+        "scope": "yaml",
+        "prefix": "oro-not",
+        "body": [
+            "'@not':",
+            "\t- '@${1|equal,in,empty,has_elements|}': $0"
+        ],
+        "description": "Negates a condition."
+    },
+    "Oro: workflow attribute": {
+        "scope": "yaml",
+        "prefix": "oro-workflow-attribute",
+        "body": [
+            "${1:attribute}:",
+            "\tlabel: ${2:app.workflow.$1.label}",
+            "\ttype: ${3|string,integer,float,boolean,array,object,entity|}",
+            "\toptions:",
+            "\t\tclass: ${4:App\\\\Entity\\\\Entity}"
+        ],
+        "description": "Workflow attribute. options.class is only needed for object and entity."
+    },
+    "Oro: workflow step": {
+        "scope": "yaml",
+        "prefix": "oro-workflow-step",
+        "body": [
+            "${1:step}:",
+            "\torder: ${2:10}",
+            "\tis_final: ${3|false,true|}",
+            "\tallowed_transitions: [${4}]"
+        ],
+        "description": "Workflow step."
+    },
+    "Oro: workflow transition definition": {
+        "scope": "yaml",
+        "prefix": "oro-transition-definition",
+        "body": [
+            "${1:transition}_definition:",
+            "\tpreconditions:",
+            "\t\t'@not_empty': ${2:\\$.entity}",
+            "\tconditions:",
+            "\t\t'@not_empty': ${3:\\$.entity.id}",
+            "\tactions:",
+            "\t\t- $0"
+        ],
+        "description": "Preconditions decide whether the button shows, conditions are checked when it is clicked."
+    },
+    "Oro: workflow transition form": {
+        "scope": "yaml",
+        "prefix": "oro-transition-form",
+        "body": [
+            "form_options:",
+            "\tattribute_fields:",
+            "\t\t${1:attribute}:",
+            "\t\t\tform_type: ${2:Symfony\\\\Component\\\\Form\\\\Extension\\\\Core\\\\Type\\\\TextType}",
+            "\t\t\toptions:",
+            "\t\t\t\trequired: true"
+        ],
+        "description": "Form shown when the transition starts. Goes inside a transition."
+    },
+    "Oro: workflow transition trigger": {
+        "scope": "yaml",
+        "prefix": "oro-transition-trigger",
+        "body": [
+            "triggers:",
+            "\t- ${1|cron: '0 * * * *',event: create|}",
+            "\t\t$0"
+        ],
+        "description": "Runs a transition on a schedule or on an entity event. A cron trigger takes filter (DQL), an event trigger takes entity_class, field, require and queued."
+    },
+    "Oro: process": {
+        "scope": "yaml",
+        "prefix": "oro-process",
+        "body": [
+            "processes:",
+            "\tdefinitions:",
+            "\t\t${1:app_process}:",
+            "\t\t\tlabel: ${2:Describe the process}",
+            "\t\t\tenabled: true",
+            "\t\t\tentity: ${3:App\\\\Entity\\\\Entity}",
+            "\t\t\tactions_configuration:",
+            "\t\t\t\t- $0",
+            "\ttriggers:",
+            "\t\t$1:",
+            "\t\t\t- event: ${4|create,update,delete|}",
+            "\t\t\t\tqueued: ${5|true,false|}"
+        ],
+        "description": "Process that runs actions on an entity event. queued: true runs it through the message queue."
+    },
+    "Oro: search mapping": {
+        "scope": "yaml",
+        "prefix": "oro-search",
+        "body": [
+            "search:",
+            "\t${1:App\\\\Entity\\\\Entity}:",
+            "\t\talias: ${2:app_entity}",
+            "\t\troute:",
+            "\t\t\tname: ${3:app_entity_view}",
+            "\t\t\tparameters:",
+            "\t\t\t\tid: id",
+            "\t\tsearch_template: '${4:@App/Entity/searchResult.html.twig}'",
+            "\t\tfields:",
+            "\t\t\t- name: ${5:name}",
+            "\t\t\t\ttarget_type: ${6|text,integer,decimal,datetime|}",
+            "\t\t\t\ttarget_fields: [$5]"
+        ],
+        "description": "Makes an entity findable in the back office search. Reindex with oro:search:reindex."
+    },
+    "Oro: feature": {
+        "scope": "yaml",
+        "prefix": "oro-feature",
+        "body": [
+            "features:",
+            "\t${1:app_feature}:",
+            "\t\tlabel: ${2:app.feature.$1.label}",
+            "\t\ttoggle: ${3:app.feature_enabled}",
+            "\t\troutes:",
+            "\t\t\t- ${4:app_entity_index}",
+            "\t\tentities:",
+            "\t\t\t- ${5:App\\\\Entity\\\\Entity}",
+            "\t\tnavigation_items:",
+            "\t\t\t- ${6:application_menu.system_tab.app_entity_index}"
+        ],
+        "description": "Feature toggle. Everything listed is hidden while the feature is off. toggle is a system configuration key."
+    },
+    "Oro: placeholder": {
+        "scope": "yaml",
+        "prefix": "oro-placeholder",
+        "body": [
+            "placeholders:",
+            "\tplaceholders:",
+            "\t\t${1:view_content_data_additional_information}:",
+            "\t\t\titems:",
+            "\t\t\t\t${2:app_block}:",
+            "\t\t\t\t\torder: ${3:100}",
+            "\titems:",
+            "\t\t$2:",
+            "\t\t\ttemplate: '${4:@@App/placeholder.html.twig}'",
+            "\t\t\tapplicable: \"@${5:app.provider}->isApplicable(\\$entity\\$)\""
+        ],
+        "description": "Renders a template in an Oro placeholder. Template paths here need @@ because a single @ is read as a service."
+    },
+    "Oro: system configuration": {
+        "scope": "yaml",
+        "prefix": "oro-system-config",
+        "body": [
+            "system_configuration:",
+            "\tgroups:",
+            "\t\t${1:app_settings}:",
+            "\t\t\ttitle: ${2:app.system_configuration.groups.$1.title}",
+            "\tfields:",
+            "\t\t${3:app}.${4:setting}:",
+            "\t\t\tdata_type: ${5|string,boolean,integer,array|}",
+            "\t\t\ttype: ${6:Symfony\\\\Component\\\\Form\\\\Extension\\\\Core\\\\Type\\\\TextType}",
+            "\t\t\toptions:",
+            "\t\t\t\tlabel: ${7:app.system_configuration.fields.$4.label}",
+            "\ttree:",
+            "\t\tsystem_configuration:",
+            "\t\t\t${8:platform}:",
+            "\t\t\t\tchildren:",
+            "\t\t\t\t\t${9:general_setup}:",
+            "\t\t\t\t\t\tchildren:",
+            "\t\t\t\t\t\t\t$1:",
+            "\t\t\t\t\t\t\t\tchildren:",
+            "\t\t\t\t\t\t\t\t\t- $3.$4"
+        ],
+        "description": "System configuration field. The key also has to be declared with SettingsBuilder in a bundle extension, so bundleless apps cannot use this alone."
+    },
+    "Oro: jsmodules": {
+        "scope": "yaml",
+        "prefix": "oro-jsmodules",
+        "body": [
+            "dynamic-imports:",
+            "\t${1:commons}:",
+            "\t\t- ${2:app/js/app/views/foo-view}"
+        ],
+        "description": "Registers a JS module so it can be loaded on demand."
+    },
+    "Oro: api field": {
+        "scope": "yaml",
+        "prefix": "oro-api-field",
+        "body": [
+            "fields:",
+            "\t${1:fieldName}:",
+            "\t\t${2|exclude: true,property_path: relation.field,data_type: string,form_options: { mapped: false }|}"
+        ],
+        "description": "Field config of an API resource: hide it, rename it via property_path, or change its type."
+    },
+    "Oro: api filter": {
+        "scope": "yaml",
+        "prefix": "oro-api-filter",
+        "body": [
+            "filters:",
+            "\tfields:",
+            "\t\t${1:fieldName}:",
+            "\t\t\tdata_type: ${2|string,integer,boolean,datetime|}",
+            "\t\t\tallow_array: ${3|true,false|}"
+        ],
+        "description": "Filter on an API list endpoint."
+    },
+    "Oro: api subresource": {
+        "scope": "yaml",
+        "prefix": "oro-api-subresource",
+        "body": [
+            "subresources:",
+            "\t${1:relation}:",
+            "\t\tactions:",
+            "\t\t\tget_subresource: true",
+            "\t\t\tget_relationship: true",
+            "\t\t\tupdate_relationship: false"
+        ],
+        "description": "Enables or disables the subresource and relationship endpoints of a relation."
+    },
+    "Oro: layout @addTree": {
+        "scope": "yaml",
+        "prefix": "oro-layout-tree",
+        "body": [
+            "- '@addTree':",
+            "\t\titems:",
+            "\t\t\t${1:app_container}:",
+            "\t\t\t\tblockType: container",
+            "\t\t\t${2:app_text}:",
+            "\t\t\t\tblockType: text",
+            "\t\t\t\toptions:",
+            "\t\t\t\t\ttext: ${3:app.label}",
+            "\t\ttree:",
+            "\t\t\t${4:page_content}:",
+            "\t\t\t\t$1:",
+            "\t\t\t\t\t$2: ~"
+        ],
+        "description": "Adds several blocks and their nesting in one layout action."
+    },
+    "Oro: layout conditions": {
+        "scope": "yaml",
+        "prefix": "oro-layout-conditions",
+        "body": "conditions: 'context[\"${1:route_name}\"] == \"${2:app_route}\"'",
+        "description": "Applies a layout update only when the expression holds. Sits next to actions under layout."
+    },
+    "Oro: translation entity labels": {
+        "scope": "yaml",
+        "prefix": "oro-entity-labels",
+        "body": [
+            "${1:entityname}:",
+            "\tentity_label: ${2:Entity}",
+            "\tentity_plural_label: ${3:Entities}",
+            "\tentity_grid_all_view_label: All ${3/(.*)/${1:/downcase}/}",
+            "\tid.label: ID",
+            "\t${4:field}.label: ${5:Field}"
+        ],
+        "description": "Entity label keys under <prefix>.entity in translations/<Namespace>/messages.en.yml."
+    }
+}

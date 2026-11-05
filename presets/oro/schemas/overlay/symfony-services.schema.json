@@ -1,0 +1,397 @@
+{
+    "title": "Symfony service definitions",
+    "type": "object",
+    "properties": {
+        "imports": {
+            "description": "Other service files to load, relative to this file. Globs are allowed.",
+            "type": "array",
+            "items": {
+                "anyOf": [
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "resource": {
+                                "description": "File, directory or glob to import.",
+                                "type": "string"
+                            },
+                            "type": {
+                                "description": "Loader type when it cannot be guessed from the extension, for example glob or directory.",
+                                "type": "string"
+                            },
+                            "ignore_errors": {
+                                "description": "true skips a missing file; not_found only skips missing files, not broken ones.",
+                                "type": [
+                                    "boolean",
+                                    "string"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            },
+            "examples": [
+                [
+                    {
+                        "resource": "services/*.yml"
+                    }
+                ]
+            ]
+        },
+        "parameters": {
+            "description": "Container parameters, used as %name%. Values can use %env(...)% for runtime environment variables.",
+            "type": "object",
+            "examples": [
+                {
+                    "app.items_per_page": 25,
+                    "app.api_url": "%env(APP_API_URL)%"
+                }
+            ]
+        },
+        "services": {
+            "description": "Service definitions keyed by service id. The id is usually the FQCN, so the service can be autowired by type. Special keys: _defaults applies to every service in this file, _instanceof to every service of a type.",
+            "type": "object",
+            "properties": {
+                "_defaults": {
+                    "description": "Defaults for every service in this file. Does not apply to imported files.",
+                    "type": "object",
+                    "properties": {
+                        "public": {
+                            "$ref": "#/definitions/public"
+                        },
+                        "autowire": {
+                            "$ref": "#/definitions/autowire"
+                        },
+                        "autoconfigure": {
+                            "$ref": "#/definitions/autoconfigure"
+                        },
+                        "tags": {
+                            "$ref": "#/definitions/tags"
+                        },
+                        "bind": {
+                            "$ref": "#/definitions/bind"
+                        }
+                    },
+                    "examples": [
+                        {
+                            "autowire": true,
+                            "autoconfigure": true,
+                            "public": false
+                        }
+                    ]
+                },
+                "_instanceof": {
+                    "description": "Config applied to every service in this file whose class is or extends the given type.",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                            "public": {
+                                "$ref": "#/definitions/public"
+                            },
+                            "autowire": {
+                                "$ref": "#/definitions/autowire"
+                            },
+                            "lazy": {
+                                "$ref": "#/definitions/lazy"
+                            },
+                            "shared": {
+                                "$ref": "#/definitions/shared"
+                            },
+                            "tags": {
+                                "$ref": "#/definitions/tags"
+                            },
+                            "calls": {
+                                "$ref": "#/definitions/calls"
+                            },
+                            "bind": {
+                                "$ref": "#/definitions/bind"
+                            },
+                            "properties": {
+                                "$ref": "#/definitions/serviceProperties"
+                            },
+                            "configurator": {
+                                "$ref": "#/definitions/configurator"
+                            },
+                            "constructor": {
+                                "$ref": "#/definitions/constructor"
+                            }
+                        }
+                    },
+                    "examples": [
+                        {
+                            "App\\Contract\\HandlerInterface": {
+                                "tags": [
+                                    "app.handler"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            "additionalProperties": {
+                "description": "A service definition, an alias written as '@other.id', or ~ for a class that only needs autowiring.",
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "description": "Alias: '@service.id' makes this id point to that service."
+                    },
+                    {
+                        "$ref": "#/definitions/service"
+                    }
+                ]
+            }
+        }
+    },
+    "definitions": {
+        "public": {
+            "description": "true makes the service fetchable with $container->get(). Defaults to false; only controllers, commands and services fetched by id from outside need it.",
+            "type": "boolean"
+        },
+        "autowire": {
+            "description": "Inject constructor arguments by type and argument name.",
+            "type": "boolean"
+        },
+        "autoconfigure": {
+            "description": "Adds tags automatically from the class, for example console.command for a Command or kernel.event_subscriber for an EventSubscriberInterface.",
+            "type": "boolean"
+        },
+        "lazy": {
+            "description": "Injects a proxy and builds the real service on first use. true, or an interface name to proxy only that interface.",
+            "type": [
+                "boolean",
+                "string"
+            ]
+        },
+        "shared": {
+            "description": "false builds a new instance every time the service is injected or fetched. Default true.",
+            "type": "boolean"
+        },
+        "tags": {
+            "description": "Tags that compiler passes use to find the service: a name, or { name, ...attributes }. A single tag can also be written as one map.",
+            "type": [
+                "array",
+                "object"
+            ],
+            "items": {
+                "anyOf": [
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "description": "Tag name, for example kernel.event_listener or console.command.",
+                                "type": "string"
+                            },
+                            "priority": {
+                                "description": "Order among services with the same tag, higher first.",
+                                "type": "integer"
+                            }
+                        }
+                    }
+                ]
+            },
+            "examples": [
+                [
+                    {
+                        "name": "kernel.event_listener",
+                        "event": "kernel.request",
+                        "method": "onKernelRequest"
+                    }
+                ]
+            ]
+        },
+        "bind": {
+            "description": "Values for constructor arguments by name ($logger) or by type and name (LoggerInterface $logger), for every autowired service it applies to.",
+            "type": "object",
+            "examples": [
+                {
+                    "$projectDir": "%kernel.project_dir%",
+                    "Psr\\Log\\LoggerInterface $importLogger": "@monolog.logger.import"
+                }
+            ]
+        },
+        "calls": {
+            "description": "Methods called after construction: [method, [arguments]], or [method, [arguments], true] for a wither whose return value replaces the service.",
+            "type": "array",
+            "examples": [
+                [
+                    [
+                        "setLogger",
+                        [
+                            "@logger"
+                        ]
+                    ]
+                ]
+            ]
+        },
+        "serviceProperties": {
+            "description": "Public properties set after construction.",
+            "type": "object"
+        },
+        "configurator": {
+            "description": "Callable that gets the built service to configure it: ['@service.id', method] or an invokable service.",
+            "type": [
+                "array",
+                "string"
+            ]
+        },
+        "constructor": {
+            "description": "Static factory method on the class itself to build the service, instead of new.",
+            "type": "string"
+        },
+        "service": {
+            "type": [
+                "object",
+                "null"
+            ],
+            "properties": {
+                "class": {
+                    "description": "Class to instantiate. Not needed when the service id is the FQCN.",
+                    "type": "string",
+                    "examples": [
+                        "App\\Service\\Foo"
+                    ]
+                },
+                "arguments": {
+                    "description": "Constructor arguments: a list in order, or a map by name ($name) or position. '@id' is a service, '@?id' an optional one, '%name%' a parameter.",
+                    "type": [
+                        "array",
+                        "object"
+                    ],
+                    "examples": [
+                        {
+                            "$registry": "@doctrine",
+                            "$logger": "@?monolog.logger.app"
+                        }
+                    ]
+                },
+                "alias": {
+                    "description": "Makes this id an alias of another service.",
+                    "type": "string"
+                },
+                "parent": {
+                    "description": "Service id of an abstract definition this one inherits arguments, calls and tags from.",
+                    "type": "string"
+                },
+                "abstract": {
+                    "description": "true marks a template definition that is never built itself, only used as parent.",
+                    "type": "boolean"
+                },
+                "public": {
+                    "$ref": "#/definitions/public"
+                },
+                "autowire": {
+                    "$ref": "#/definitions/autowire"
+                },
+                "autoconfigure": {
+                    "$ref": "#/definitions/autoconfigure"
+                },
+                "lazy": {
+                    "$ref": "#/definitions/lazy"
+                },
+                "shared": {
+                    "$ref": "#/definitions/shared"
+                },
+                "synthetic": {
+                    "description": "The container never builds this service; code sets it at runtime with $container->set().",
+                    "type": "boolean"
+                },
+                "tags": {
+                    "$ref": "#/definitions/tags"
+                },
+                "calls": {
+                    "$ref": "#/definitions/calls"
+                },
+                "properties": {
+                    "$ref": "#/definitions/serviceProperties"
+                },
+                "bind": {
+                    "$ref": "#/definitions/bind"
+                },
+                "configurator": {
+                    "$ref": "#/definitions/configurator"
+                },
+                "constructor": {
+                    "$ref": "#/definitions/constructor"
+                },
+                "factory": {
+                    "description": "Builds the service by calling a factory: ['@factory.id', method], [Class, staticMethod], 'Class::method' or an invokable service '@id'.",
+                    "type": [
+                        "array",
+                        "string"
+                    ],
+                    "examples": [
+                        [
+                            "@App\\Factory\\ClientFactory",
+                            "create"
+                        ]
+                    ]
+                },
+                "file": {
+                    "description": "PHP file required before the service is built, for legacy code without autoloading.",
+                    "type": "string"
+                },
+                "decorates": {
+                    "description": "Service id this one replaces. The original stays available as '@.inner' (or '@<this id>.inner').",
+                    "type": "string",
+                    "examples": [
+                        "oro_order.order.provider.order_address"
+                    ]
+                },
+                "decoration_inner_name": {
+                    "description": "Custom id for the decorated service instead of <this id>.inner.",
+                    "type": "string"
+                },
+                "decoration_priority": {
+                    "description": "Order when several decorators wrap the same service; higher wraps first, so it ends up innermost. Default 0.",
+                    "type": "integer"
+                },
+                "decoration_on_invalid": {
+                    "description": "What happens when the decorated service does not exist.",
+                    "enum": [
+                        "exception",
+                        "ignore",
+                        "null"
+                    ]
+                },
+                "deprecated": {
+                    "description": "Marks the service as deprecated: { package, version, message }. %service_id% in the message is replaced.",
+                    "type": "object",
+                    "examples": [
+                        {
+                            "package": "acme/app",
+                            "version": "2.1",
+                            "message": "The \"%service_id%\" service is deprecated, use App\\Service\\Bar."
+                        }
+                    ]
+                },
+                "resource": {
+                    "description": "Registers every class in this directory or glob as a service; the key must then be a namespace prefix ending in a backslash.",
+                    "type": "string",
+                    "examples": [
+                        "../src/*"
+                    ]
+                },
+                "namespace": {
+                    "description": "Namespace of the classes loaded with resource, when the key is not the namespace itself.",
+                    "type": "string"
+                },
+                "exclude": {
+                    "description": "Paths or globs left out of resource.",
+                    "type": [
+                        "string",
+                        "array"
+                    ],
+                    "examples": [
+                        "../src/{Entity,Migrations,Tests}"
+                    ]
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,361 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Oro navigation",
+    "type": "object",
+    "properties": {
+        "navigation": {
+            "description": "Menus, menu items and page titles.",
+            "type": [
+                "object",
+                "null"
+            ],
+            "properties": {
+                "menu_config": {
+                    "description": "Menu items and where they sit in which menu.",
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "properties": {
+                        "items": {
+                            "description": "Menu items, keyed by item name. An item does nothing until it is placed in a menu under tree.",
+                            "type": [
+                                "object",
+                                "null"
+                            ],
+                            "additionalProperties": {
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/definitions/item"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ]
+                            },
+                            "examples": [
+                                {
+                                    "app_entity_index": {
+                                        "label": "app.menu.entity.label",
+                                        "route": "app_entity_index",
+                                        "extras": {
+                                            "position": 100
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "tree": {
+                            "description": "Menus, keyed by menu name, for example application_menu (main back office menu), usermenu or shortcuts.",
+                            "type": [
+                                "object",
+                                "null"
+                            ],
+                            "additionalProperties": {
+                                "type": [
+                                    "object",
+                                    "null"
+                                ],
+                                "properties": {
+                                    "type": {
+                                        "description": "Menu type, set by the bundle that defines the menu.",
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "scope_type": {
+                                        "description": "Scope used to store menu customizations, for example menu_default_visibility.",
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "read_only": {
+                                        "description": "true blocks editing the menu in the back office menu editor.",
+                                        "type": [
+                                            "boolean",
+                                            "null"
+                                        ]
+                                    },
+                                    "max_nesting_level": {
+                                        "description": "How deep items may be nested.",
+                                        "type": [
+                                            "integer",
+                                            "null"
+                                        ]
+                                    },
+                                    "children": {
+                                        "anyOf": [
+                                            {
+                                                "$ref": "#/definitions/children"
+                                            },
+                                            {
+                                                "type": "null"
+                                            }
+                                        ]
+                                    }
+                                }
+                            },
+                            "examples": [
+                                {
+                                    "application_menu": {
+                                        "children": {
+                                            "system_tab": {
+                                                "children": {
+                                                    "app_entity_index": null
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "templates": {
+                            "description": "Rendering templates for menus, keyed by template name.",
+                            "type": [
+                                "object",
+                                "null"
+                            ]
+                        }
+                    }
+                },
+                "titles": {
+                    "description": "Page titles, keyed by route name. ~ builds the title from the menu items that lead to the route; a string sets it, and %placeholders% are filled from the controller.",
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "additionalProperties": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "examples": [
+                        {
+                            "app_entity_index": null,
+                            "app_entity_view": "%name%"
+                        }
+                    ]
+                },
+                "navigation_elements": {
+                    "description": "Toggles page elements (favorites button, pin button, shortcuts) per route.",
+                    "type": [
+                        "object",
+                        "null"
+                    ]
+                }
+            }
+        }
+    },
+    "definitions": {
+        "item": {
+            "type": "object",
+            "properties": {
+                "label": {
+                    "description": "Translation key of the item.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "route": {
+                    "description": "Route the item links to. The item is hidden when the user may not access the route's controller.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "route_parameters": {
+                    "description": "Parameters for route.",
+                    "type": [
+                        "object",
+                        "null"
+                    ]
+                },
+                "uri": {
+                    "description": "Fixed URL instead of a route; # for a parent item without its own page.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "acl_resource_id": {
+                    "description": "ACL resource that decides whether the item shows. Without it Oro checks the ACL of the route's controller.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "display": {
+                    "description": "false hides the item.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "display_children": {
+                    "description": "false hides the item's children.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "translate_domain": {
+                    "description": "Translation domain of label.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "translate_parameters": {
+                    "description": "Parameters for label.",
+                    "type": [
+                        "object",
+                        "null"
+                    ]
+                },
+                "translate_disabled": {
+                    "description": "true shows label as is.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "attributes": {
+                    "description": "HTML attributes of the li element.",
+                    "type": [
+                        "object",
+                        "null"
+                    ]
+                },
+                "linkAttributes": {
+                    "description": "HTML attributes of the a element.",
+                    "type": [
+                        "object",
+                        "null"
+                    ]
+                },
+                "label_attributes": {
+                    "type": [
+                        "object",
+                        "null"
+                    ]
+                },
+                "children_attributes": {
+                    "type": [
+                        "object",
+                        "null"
+                    ]
+                },
+                "extras": {
+                    "description": "Extra item data used by Oro.",
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "properties": {
+                        "position": {
+                            "description": "Sort order among siblings, lower first.",
+                            "type": [
+                                "integer",
+                                "null"
+                            ]
+                        },
+                        "routes": {
+                            "description": "Other routes that mark this item as active. Accepts wildcards (oro_integration_*) and regex (/^app_entity_/).",
+                            "type": [
+                                "array",
+                                "string",
+                                "null"
+                            ],
+                            "items": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
+                        },
+                        "icon": {
+                            "description": "Font Awesome class, for example fa-truck.",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "description": {
+                            "description": "Translation key of the item description.",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    }
+                },
+                "position": {
+                    "description": "Sort order among siblings, lower first.",
+                    "type": [
+                        "integer",
+                        "null"
+                    ]
+                },
+                "read_only": {
+                    "description": "true blocks editing the item in the back office menu editor.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "show_non_authorized": {
+                    "description": "true shows the item even when the user has no access to its route.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                }
+            }
+        },
+        "children": {
+            "description": "Child items, keyed by item name from menu_config.items. Use ~ for a leaf or { children: ... } to nest further. Tab names like system_tab are items defined by Oro.",
+            "type": "object",
+            "additionalProperties": {
+                "anyOf": [
+                    {
+                        "type": "null"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "children": {
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/definitions/children"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ]
+                            },
+                            "merge_strategy": {
+                                "description": "What happens when the item is already placed elsewhere in the tree. move (default) moves it here, replace replaces the existing placement including its children.",
+                                "enum": [
+                                    "move",
+                                    "replace",
+                                    null
+                                ]
+                            },
+                            "position": {
+                                "description": "Sort order among siblings, lower first.",
+                                "type": [
+                                    "integer",
+                                    "null"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,9 @@
+{
+  "description": "Oro: Symfony LSP env fix, Oro snippets, generated YAML schemas with hover text.",
+  "requires": [
+    "symfony"
+  ],
+  "defaults": {
+    "oroDocumentation": ""
+  }
+}

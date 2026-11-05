@@ -1,0 +1,22 @@
+{
+    "title": "Oro assets",
+    "type": "object",
+    "additionalProperties": {
+        "description": "A CSS bundle, keyed by name (css is the main back office stylesheet).",
+        "type": "object",
+        "properties": {
+            "inputs": {
+                "description": "SCSS or CSS files, relative to public/; ~ refers to node_modules.",
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "examples": [
+                    [
+                        "bundles/app/css/scss/main.scss"
+                    ]
+                ]
+            }
+        }
+    }
+}

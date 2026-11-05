@@ -1,0 +1,25 @@
+{
+    "title": "Oro websocket routing",
+    "type": "object",
+    "additionalProperties": {
+        "description": "A websocket topic route, keyed by name.",
+        "type": "object",
+        "properties": {
+            "channel": {
+                "description": "Topic the client subscribes to; can contain {placeholders}.",
+                "type": "string",
+                "examples": [
+                    "oro/data/update"
+                ]
+            },
+            "handler": {
+                "description": "Service that handles subscriptions: { callback: service id, args: [...] }.",
+                "type": "object"
+            },
+            "requirements": {
+                "description": "Regex per channel placeholder.",
+                "type": "object"
+            }
+        }
+    }
+}

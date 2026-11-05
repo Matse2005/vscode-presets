@@ -1,0 +1,18 @@
+{
+    "title": "Oro twig form themes",
+    "type": "object",
+    "properties": {
+        "bundles": {
+            "description": "Form themes added to every Symfony form, as twig template names.",
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "examples": [
+                [
+                    "@AcmeApp/Form/fields.html.twig"
+                ]
+            ]
+        }
+    }
+}

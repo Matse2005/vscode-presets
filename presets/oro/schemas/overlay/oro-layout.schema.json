@@ -1,0 +1,189 @@
+{
+    "title": "Oro storefront layout update",
+    "type": "object",
+    "properties": {
+        "layout": {
+            "description": "Storefront layout update (OroCommerce themes).",
+            "type": "object",
+            "properties": {
+                "imports": {
+                    "description": "Reusable layout blocks to include, with a root block and a namespace for their ids.",
+                    "type": "array",
+                    "examples": [
+                        [
+                            {
+                                "id": "oro_customer_form",
+                                "root": "page_content",
+                                "namespace": "login"
+                            }
+                        ]
+                    ]
+                },
+                "conditions": {
+                    "description": "Expression that must be true for this update to apply, with context available.",
+                    "type": "string",
+                    "examples": [
+                        "context[\"is_mobile\"]==false"
+                    ]
+                },
+                "actions": {
+                    "description": "Layout actions run in order: @add, @addTree, @remove, @move, @setOption, @appendOption, @subtractOption, @replaceOption, @removeOption, @changeBlockType, @setBlockTheme, @setFormTheme, @addAlias, @removeAlias, @clear.",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "@add": {
+                                "description": "Adds a block. Options as a map, or as a list in parameter order.",
+                                "properties": {
+                                    "id": {
+                                        "description": "Block id.",
+                                        "type": "string"
+                                    },
+                                    "parentId": {
+                                        "description": "Parent block id.",
+                                        "type": "string"
+                                    },
+                                    "blockType": {
+                                        "description": "Block type, for example container, text, link, button, block.",
+                                        "type": "string"
+                                    },
+                                    "options": {
+                                        "description": "Block options; values starting with = are expressions, for example =data['product'].",
+                                        "type": "object"
+                                    },
+                                    "siblingId": {
+                                        "description": "Sibling to place the block next to.",
+                                        "type": "string"
+                                    },
+                                    "prepend": {
+                                        "description": "true places it before the sibling, or first.",
+                                        "type": "boolean"
+                                    }
+                                },
+                                "examples": [
+                                    {
+                                        "id": "app_note",
+                                        "parentId": "page_content",
+                                        "blockType": "text",
+                                        "options": {
+                                            "text": "app.note"
+                                        }
+                                    }
+                                ]
+                            },
+                            "@addTree": {
+                                "description": "Adds several blocks and their nesting. Options as a map, or as a list in parameter order.",
+                                "properties": {
+                                    "items": {
+                                        "description": "Blocks keyed by id, each with blockType and options.",
+                                        "type": "object"
+                                    },
+                                    "tree": {
+                                        "description": "Nesting of the item ids under an existing block.",
+                                        "type": "object"
+                                    }
+                                }
+                            },
+                            "@remove": {
+                                "description": "Removes a block and its children. Options as a map, or as a list in parameter order.",
+                                "properties": {
+                                    "id": {
+                                        "type": "string"
+                                    }
+                                },
+                                "examples": [
+                                    {
+                                        "id": "page_sidebar"
+                                    }
+                                ]
+                            },
+                            "@move": {
+                                "description": "Moves a block under another parent or next to a sibling. Options as a map, or as a list in parameter order.",
+                                "properties": {
+                                    "id": {
+                                        "type": "string"
+                                    },
+                                    "parentId": {
+                                        "type": "string"
+                                    },
+                                    "siblingId": {
+                                        "type": "string"
+                                    },
+                                    "prepend": {
+                                        "type": "boolean"
+                                    }
+                                }
+                            },
+                            "@setOption": {
+                                "description": "Sets one option of a block. Options as a map, or as a list in parameter order.",
+                                "properties": {
+                                    "id": {
+                                        "type": "string"
+                                    },
+                                    "optionName": {
+                                        "type": "string"
+                                    },
+                                    "optionValue": {}
+                                },
+                                "examples": [
+                                    {
+                                        "id": "page_title",
+                                        "optionName": "defaultValue",
+                                        "optionValue": "app.title"
+                                    }
+                                ]
+                            },
+                            "@appendOption": {
+                                "description": "Appends to an option value (string or array). Options as a map, or as a list in parameter order."
+                            },
+                            "@removeOption": {
+                                "description": "Removes an option from a block. Options as a map, or as a list in parameter order."
+                            },
+                            "@changeBlockType": {
+                                "description": "Changes the block type of an existing block. Options as a map, or as a list in parameter order."
+                            },
+                            "@setBlockTheme": {
+                                "description": "Twig templates that render the blocks of this update; the second argument limits it to one block. Options as a map, or as a list in parameter order.",
+                                "properties": {
+                                    "themes": {
+                                        "description": "Template or list of templates.",
+                                        "type": [
+                                            "string",
+                                            "array"
+                                        ]
+                                    },
+                                    "id": {
+                                        "type": "string"
+                                    }
+                                },
+                                "examples": [
+                                    {
+                                        "themes": "@AcmeApp/layouts/default/page/layout.html.twig"
+                                    }
+                                ]
+                            },
+                            "@setFormTheme": {
+                                "description": "Form themes for forms rendered in the layout. Options as a map, or as a list in parameter order."
+                            },
+                            "@addAlias": {
+                                "description": "Adds an alternative id for a block. Options as a map, or as a list in parameter order."
+                            },
+                            "@removeAlias": {
+                                "description": "Removes an alias. Options as a map, or as a list in parameter order."
+                            },
+                            "@clear": {
+                                "description": "Removes every block from the layout. Options as a map, or as a list in parameter order."
+                            },
+                            "@subtractOption": {
+                                "description": "Removes a value from an option value (string or array). Options as a map, or as a list in parameter order."
+                            },
+                            "@replaceOption": {
+                                "description": "Replaces one value inside an option value: id, optionName, oldOptionValue, newOptionValue. Options as a map, or as a list in parameter order."
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

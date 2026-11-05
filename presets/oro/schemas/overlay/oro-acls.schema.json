@@ -1,0 +1,122 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Oro ACL resources",
+    "type": "object",
+    "properties": {
+        "acls": {
+            "description": "ACL resources, keyed by resource id. The id is what acl_resource, #[AclAncestor] and is_granted() refer to.",
+            "type": [
+                "object",
+                "null"
+            ],
+            "additionalProperties": {
+                "type": [
+                    "object",
+                    "null"
+                ],
+                "properties": {
+                    "type": {
+                        "description": "action is a capability switched on or off per role. entity maps to a permission (VIEW, EDIT, ...) on class, so the role's entity permission decides.",
+                        "enum": [
+                            "action",
+                            "entity",
+                            null
+                        ]
+                    },
+                    "label": {
+                        "description": "Translation key shown in the role editor.",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "description": {
+                        "description": "Translation key of the help text in the role editor.",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "group_name": {
+                        "description": "ACL group the resource belongs to. An empty string is the default (back office) group.",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "category": {
+                        "description": "Category under which an action resource is listed in the role editor (capabilities).",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "class": {
+                        "description": "Entity class, for type entity.",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "permission": {
+                        "description": "Permission on class, for type entity: VIEW, CREATE, EDIT, DELETE, ASSIGN or a custom one.",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "ignore_class_acl": {
+                        "description": "true skips the class level ACL check.",
+                        "type": [
+                            "boolean",
+                            "null"
+                        ]
+                    },
+                    "bindings": {
+                        "description": "Controller methods protected by this resource, as an alternative to #[AclAncestor] on the method.",
+                        "type": [
+                            "array",
+                            "null"
+                        ],
+                        "items": {
+                            "type": [
+                                "object",
+                                "null"
+                            ],
+                            "properties": {
+                                "class": {
+                                    "description": "Controller class.",
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                },
+                                "method": {
+                                    "description": "Controller method.",
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "examples": [
+                {
+                    "app_entity_retry": {
+                        "label": "app.acl.retry.label",
+                        "type": "action",
+                        "group_name": ""
+                    },
+                    "app_entity_view": {
+                        "type": "entity",
+                        "class": "App\\Entity\\Entity",
+                        "permission": "VIEW"
+                    }
+                }
+            ]
+        }
+    }
+}

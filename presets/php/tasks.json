@@ -1,0 +1,15 @@
+{
+  "tasks": [
+    {
+      "label": "Create php-cs-fixer local config",
+      "type": "shell",
+      "command": "\"${workspaceFolder}/.vscode/presets/php/scripts/setup-php-cs-fixer.sh\"",
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated",
+        "clear": false
+      },
+      "problemMatcher": []
+    }
+  ]
+}

@@ -1,0 +1,190 @@
+{
+  "symfonyLsp.phpCommand": [
+    "{{runner}}",
+    "php",
+    "-d",
+    "auto_prepend_file=/app/.vscode/presets/oro/oro-dotenv.php"
+  ],
+  "intelephense.files.exclude+": [
+    "**/public/bundles/**",
+    "**/public/build/**",
+    "**/public/media/**"
+  ],
+  "files.watcherExclude": {
+    "**/public/bundles/**": true,
+    "**/public/build/**": true,
+    "**/public/media/**": true
+  },
+  "yaml.schemas": {
+    "./.vscode/presets/oro/schemas/generated/oro-acl-categories.schema.json": [
+      "config/oro/acl_categories.yml",
+      "config/oro/acl_categories/**/*.yml",
+      "**/Resources/config/oro/acl_categories.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/oro-acls.schema.json": [
+      "config/oro/acls.yml",
+      "config/oro/acls/**/*.yml",
+      "**/Resources/config/oro/acls.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/oro-actions.schema.json": [
+      "config/oro/actions.yml",
+      "config/oro/actions/**/*.yml",
+      "**/Resources/config/oro/actions.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/oro-address-format.schema.json": [
+      "config/oro/address_format.yml",
+      "config/oro/address_format/**/*.yml",
+      "**/Resources/config/oro/address_format.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/oro-api.schema.json": [
+      "config/oro/api.yml",
+      "config/oro/api/**/*.yml",
+      "**/Resources/config/oro/api.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/oro-assets.schema.json": [
+      "config/oro/assets.yml",
+      "config/oro/assets/**/*.yml",
+      "**/Resources/config/oro/assets.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/oro-bundles.schema.json": [
+      "config/oro/bundles.yml",
+      "config/oro/bundles/**/*.yml",
+      "**/Resources/config/oro/bundles.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/oro-charts.schema.json": [
+      "config/oro/charts.yml",
+      "config/oro/charts/**/*.yml",
+      "**/Resources/config/oro/charts.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/oro-configurable-permissions.schema.json": [
+      "config/oro/configurable_permissions.yml",
+      "config/oro/configurable_permissions/**/*.yml",
+      "**/Resources/config/oro/configurable_permissions.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/oro-dashboards.schema.json": [
+      "config/oro/dashboards.yml",
+      "config/oro/dashboards/**/*.yml",
+      "**/Resources/config/oro/dashboards.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/oro-datagrids.schema.json": [
+      "config/oro/datagrids.yml",
+      "config/oro/datagrids/**/*.yml",
+      "**/Resources/config/oro/datagrids.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/oro-entity.schema.json": [
+      "config/oro/entity.yml",
+      "config/oro/entity/**/*.yml",
+      "**/Resources/config/oro/entity.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/oro-entity-config.schema.json": [
+      "config/oro/entity_config.yml",
+      "config/oro/entity_config/**/*.yml",
+      "**/Resources/config/oro/entity_config.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/oro-entity-extend.schema.json": [
+      "config/oro/entity_extend.yml",
+      "config/oro/entity_extend/**/*.yml",
+      "**/Resources/config/oro/entity_extend.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/oro-features.schema.json": [
+      "config/oro/features.yml",
+      "config/oro/features/**/*.yml",
+      "**/Resources/config/oro/features.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/oro-help.schema.json": [
+      "config/oro/help.yml",
+      "config/oro/help/**/*.yml",
+      "**/Resources/config/oro/help.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/oro-integrations.schema.json": [
+      "config/oro/integrations.yml",
+      "config/oro/integrations/**/*.yml",
+      "**/Resources/config/oro/integrations.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/oro-jsmodules.schema.json": [
+      "config/oro/jsmodules.yml",
+      "config/oro/jsmodules/**/*.yml",
+      "**/Resources/config/oro/jsmodules.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/oro-layout.schema.json": [
+      "**/Resources/views/layouts/**/*.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/oro-locale-data.schema.json": [
+      "config/oro/locale_data.yml",
+      "config/oro/locale_data/**/*.yml",
+      "**/Resources/config/oro/locale_data.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/oro-name-format.schema.json": [
+      "config/oro/name_format.yml",
+      "config/oro/name_format/**/*.yml",
+      "**/Resources/config/oro/name_format.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/oro-navigation.schema.json": [
+      "config/oro/navigation.yml",
+      "config/oro/navigation/**/*.yml",
+      "**/Resources/config/oro/navigation.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/oro-organization-types.schema.json": [
+      "config/oro/organization_types.yml",
+      "config/oro/organization_types/**/*.yml",
+      "**/Resources/config/oro/organization_types.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/oro-permissions.schema.json": [
+      "config/oro/permissions.yml",
+      "config/oro/permissions/**/*.yml",
+      "**/Resources/config/oro/permissions.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/oro-placeholders.schema.json": [
+      "config/oro/placeholders.yml",
+      "config/oro/placeholders/**/*.yml",
+      "**/Resources/config/oro/placeholders.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/oro-processes.schema.json": [
+      "config/oro/processes.yml",
+      "config/oro/processes/**/*.yml",
+      "**/Resources/config/oro/processes.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/oro-query-designer.schema.json": [
+      "config/oro/query_designer.yml",
+      "config/oro/query_designer/**/*.yml",
+      "**/Resources/config/oro/query_designer.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/oro-search.schema.json": [
+      "config/oro/search.yml",
+      "config/oro/search/**/*.yml",
+      "**/Resources/config/oro/search.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/oro-twig.schema.json": [
+      "config/oro/twig.yml",
+      "config/oro/twig/**/*.yml",
+      "**/Resources/config/oro/twig.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/oro-websocket-routing.schema.json": [
+      "config/oro/websocket_routing.yml",
+      "config/oro/websocket_routing/**/*.yml",
+      "**/Resources/config/oro/websocket_routing.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/oro-workflows.schema.json": [
+      "config/oro/workflows.yml",
+      "config/oro/workflows/**/*.yml",
+      "**/Resources/config/oro/workflows.yml",
+      "**/Resources/config/oro/workflows/**/*.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/symfony-config.schema.json": [
+      "config/config*.yml",
+      "config/security*.yml",
+      "config/packages/**/*.yml",
+      "**/Resources/config/oro/app.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/symfony-routing.schema.json": [
+      "config/routing*.yml",
+      "config/routing/**/*.yml",
+      "**/Resources/config/oro/routing.yml"
+    ],
+    "./.vscode/presets/oro/schemas/generated/symfony-services.schema.json": [
+      "config/services*.yml",
+      "config/services/**/*.yml",
+      "**/Resources/config/services*.yml"
+    ]
+  }
+}

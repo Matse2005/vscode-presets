@@ -1,0 +1,84 @@
+{
+    "title": "Symfony routing",
+    "type": "object",
+    "additionalProperties": {
+        "description": "A route (path + controller) or an import of routes (resource), keyed by route name or import name. Keys starting with when@ hold routes for one environment only.",
+        "type": ["object", "null"],
+        "properties": {
+            "path": {
+                "description": "URL path with {placeholders}, or a map of locale to path for localized routes.",
+                "type": ["string", "object"],
+                "examples": ["/order/{id}"]
+            },
+            "controller": {
+                "description": "Controller to call: Class::method, a service id with ::method, or an invokable controller class.",
+                "type": "string",
+                "examples": ["App\\Controller\\OrderController::view"]
+            },
+            "methods": {
+                "description": "HTTP methods the route matches; any method when left out.",
+                "type": ["array", "string"],
+                "examples": [["GET", "POST"]]
+            },
+            "requirements": {
+                "description": "Regex per placeholder that the value must match.",
+                "type": "object",
+                "examples": [{ "id": "\\d+" }]
+            },
+            "defaults": {
+                "description": "Default values for placeholders and request attributes, for example _format or _controller.",
+                "type": "object",
+                "examples": [{ "page": 1 }]
+            },
+            "options": {
+                "description": "Route options. Oro reads expose: true to make the route available in JS through FOSJsRouting.",
+                "type": "object",
+                "examples": [{ "expose": true }]
+            },
+            "host": {
+                "description": "Host the route matches, can contain placeholders.",
+                "type": ["string", "object"]
+            },
+            "schemes": {
+                "description": "URL schemes, for example [https].",
+                "type": ["array", "string"]
+            },
+            "condition": {
+                "description": "Expression that must be true for the route to match, with context and request available.",
+                "type": "string",
+                "examples": ["request.headers.get('User-Agent') matches '/firefox/i'"]
+            },
+            "locale": { "description": "Sets _locale in the defaults and requirements.", "type": "string" },
+            "format": { "description": "Sets _format in the defaults and requirements.", "type": "string" },
+            "utf8": { "description": "true allows UTF-8 characters in the path and requirements.", "type": "boolean" },
+            "stateless": { "description": "true marks the route as not using the session; Symfony then fails when the session is used.", "type": "boolean" },
+            "resource": {
+                "description": "Imports routes from a file, directory, controller class (with type attribute) or a namespace.",
+                "type": ["string", "object"],
+                "examples": ["App\\Controller\\OrderController", "routing/*.yml"]
+            },
+            "type": {
+                "description": "Loader for resource: attribute for #[Route] on controllers, directory, glob, or a custom loader.",
+                "type": "string",
+                "examples": ["attribute"]
+            },
+            "prefix": {
+                "description": "Path prefix added to every imported route, or a map of locale to prefix.",
+                "type": ["string", "object"],
+                "examples": ["/admin"]
+            },
+            "name_prefix": {
+                "description": "Prefix added to the name of every imported route.",
+                "type": "string"
+            },
+            "trailing_slash_on_root": {
+                "description": "false stops the prefix from adding a trailing slash to an imported route whose path is /.",
+                "type": "boolean"
+            },
+            "exclude": {
+                "description": "Paths or globs left out of resource.",
+                "type": ["string", "array"]
+            }
+        }
+    }
+}

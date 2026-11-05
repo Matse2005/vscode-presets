@@ -1,0 +1,23 @@
+{
+  "php-cs-fixer.executablePath": "${workspaceFolder}/bin/php-cs-fixer",
+  "php-cs-fixer.config": ".php-cs-fixer.local.php",
+  "php-cs-fixer.onsave": true,
+  "php-cs-fixer.allowRisky": false,
+  "[php]": {
+    "editor.defaultFormatter": "junstyle.php-cs-fixer"
+  },
+  "phpunit.phpunit": "bin/phpunit",
+  "phpunit.command": "{{runner}} php ${phpargs} ${phpunit} ${phpunitargs}",
+  "phpunit.paths": {
+    "${workspaceFolder}": "/app"
+  },
+  "intelephense.files.exclude+": [
+    "**/.git/**",
+    "**/node_modules/**",
+    "**/vendor/**/{Tests,tests}/**",
+    "**/vendor/**/vendor/**"
+  ],
+  "files.watcherExclude": {
+    "**/node_modules/**": true
+  }
+}

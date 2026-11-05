@@ -1,0 +1,18 @@
+{
+  "tasks": [
+    {
+      "label": "Sync vscode-presets",
+      "type": "shell",
+      "command": "\"${workspaceFolder}/.vscode/install.sh\"",
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated",
+        "clear": false
+      },
+      "problemMatcher": [],
+      "runOptions": {
+        "runOn": "folderOpen"
+      }
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "symfonyLsp.phpCommand": [
+    "{{runner}}",
+    "php"
+  ],
+  "symfonyLsp.containerProjectRoot": "/app",
+  "yaml.customTags": [
+    "!php/const scalar",
+    "!php/enum scalar",
+    "!php/object scalar",
+    "!tagged_iterator scalar",
+    "!tagged_iterator mapping",
+    "!tagged_locator scalar",
+    "!tagged_locator mapping",
+    "!service mapping",
+    "!service_locator mapping",
+    "!iterator sequence",
+    "!abstract scalar",
+    "!closure scalar",
+    "!returns_clone sequence"
+  ],
+  "intelephense.files.exclude+": [
+    "**/var/**"
+  ],
+  "files.watcherExclude": {
+    "**/var/**": true
+  }
+}

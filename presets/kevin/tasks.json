@@ -1,0 +1,15 @@
+{
+  "tasks": [
+    {
+      "label": "Restart Kevin with a clean cache",
+      "type": "shell",
+      "command": "\"${workspaceFolder}/.vscode/presets/kevin/scripts/start-kevin.sh\" \"${workspaceFolder}\"",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "problemMatcher": []
+    }
+  ]
+}

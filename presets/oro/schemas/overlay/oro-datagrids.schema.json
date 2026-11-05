@@ -1,0 +1,1642 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Oro datagrids",
+    "type": "object",
+    "properties": {
+        "imports": {
+            "anyOf": [
+                {
+                    "$ref": "#/definitions/imports"
+                },
+                {
+                    "type": "null"
+                }
+            ]
+        },
+        "datagrids": {
+            "description": "Datagrid definitions, keyed by grid name. The name is what twig (dataGrid.renderGrid), operations and datagrid listeners refer to.",
+            "type": [
+                "object",
+                "null"
+            ],
+            "additionalProperties": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/grid"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            }
+        }
+    },
+    "definitions": {
+        "imports": {
+            "description": "Other yml files merged into this one.",
+            "type": "array",
+            "items": {
+                "type": [
+                    "object",
+                    "null"
+                ],
+                "properties": {
+                    "resource": {
+                        "description": "Path relative to this file.",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            }
+        },
+        "grid": {
+            "type": "object",
+            "properties": {
+                "extends": {
+                    "description": "Name of the grid this one inherits from. Every key set here is merged over the parent's config.",
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "examples": [
+                        "app-entity-grid"
+                    ]
+                },
+                "extended_entity_name": {
+                    "description": "Entity class the grid shows. Oro uses it to add the entity's extended fields that are configured to show in grids, and for features that need the entity class such as field ACL, inline editing and grid views.",
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "examples": [
+                        "App\\Entity\\Entity"
+                    ]
+                },
+                "acl_resource": {
+                    "description": "ACL resource the user needs to see the grid at all. Row level ownership is applied separately to the ORM query unless source.skip_acl_apply is true.",
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "examples": [
+                        "app_entity_view"
+                    ]
+                },
+                "source": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/source"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "columns": {
+                    "description": "Visible columns, keyed by the result field they show (an alias from source.query.select). Order here is the default column order.",
+                    "type": [
+                        "object",
+                        "null",
+                        "array"
+                    ],
+                    "additionalProperties": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/definitions/column"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "examples": [
+                        {
+                            "name": {
+                                "label": "app.entity.name.label"
+                            },
+                            "createdAt": {
+                                "label": "oro.ui.created_at",
+                                "frontend_type": "datetime"
+                            }
+                        }
+                    ]
+                },
+                "properties": {
+                    "description": "Values added to every row without being shown as a column, usually links (type url) used by row actions. id: ~ passes the id through to the frontend.",
+                    "type": [
+                        "object",
+                        "null",
+                        "array"
+                    ],
+                    "additionalProperties": {
+                        "anyOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "$ref": "#/definitions/property"
+                            }
+                        ]
+                    },
+                    "examples": [
+                        {
+                            "id": null,
+                            "view_link": {
+                                "type": "url",
+                                "route": "app_entity_view",
+                                "params": [
+                                    "id"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "sorters": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/sorters"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "filters": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/filters"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "actions": {
+                    "description": "Row actions, keyed by action name. Shown in the row's action menu.",
+                    "type": [
+                        "object",
+                        "null",
+                        "array"
+                    ],
+                    "additionalProperties": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/definitions/action"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "examples": [
+                        {
+                            "view": {
+                                "type": "navigate",
+                                "label": "oro.grid.action.view",
+                                "icon": "eye",
+                                "link": "view_link",
+                                "acl_resource": "app_entity_view",
+                                "rowAction": true
+                            }
+                        }
+                    ]
+                },
+                "action_configuration": {
+                    "description": "Decides per row which actions are shown. A callable (service->method or [class, method]) that gets the result record and returns an array of action name to true or false.",
+                    "type": [
+                        "string",
+                        "array",
+                        "object",
+                        "null"
+                    ]
+                },
+                "mass_actions": {
+                    "description": "Actions on the selected rows, keyed by name. delete: { disabled: true } turns off the default mass delete.",
+                    "type": [
+                        "object",
+                        "null",
+                        "array"
+                    ],
+                    "additionalProperties": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/definitions/massAction"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "examples": [
+                        {
+                            "delete": {
+                                "disabled": true
+                            }
+                        }
+                    ]
+                },
+                "inline_editing": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/inlineEditing"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "totals": {
+                    "description": "Summary rows under the grid, keyed by row name, for example page_total and grand_total.",
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "additionalProperties": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/definitions/totalRow"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "options": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/options"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "examples": [
+                        {
+                            "entityHint": "app.entity.entity_plural_label",
+                            "entity_pagination": true
+                        }
+                    ]
+                },
+                "views_list": {
+                    "description": "Service that provides predefined grid views (saved filter and sorter sets), written as '@service.id'.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "features": {
+                    "description": "Feature toggle integration. entity_class_name_path points to the query field holding an entity class, and rows whose class belongs to a disabled feature are filtered out.",
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "properties": {
+                        "entity_class_name_path": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "source": {
+            "description": "Where the rows come from.",
+            "type": "object",
+            "properties": {
+                "type": {
+                    "description": "orm runs a Doctrine query built from source.query, search queries the search index, array uses rows that a listener puts into the datasource.",
+                    "anyOf": [
+                        {
+                            "enum": [
+                                "orm",
+                                "search",
+                                "array"
+                            ]
+                        },
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "query": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/query"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "bind_parameters": {
+                    "description": "Grid parameters bound to query parameters. A list of names binds same-named grid parameters; a map is query parameter to grid parameter name or to { path, default }.",
+                    "type": [
+                        "array",
+                        "object",
+                        "null"
+                    ],
+                    "items": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "description": "Query parameter name, without the colon.",
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "path": {
+                                        "description": "Grid parameter to read, for example _parameters.id.",
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "default": {
+                                        "description": "Value used when the grid parameter is missing."
+                                    }
+                                }
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "examples": [
+                        [
+                            "orderId"
+                        ]
+                    ]
+                },
+                "skip_acl_apply": {
+                    "description": "true stops Oro from adding ownership conditions (user, business unit, organization) to the query. Only safe when the grid has its own access check.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "hints": {
+                    "description": "Doctrine query hints, for example HINT_TRANSLATABLE for translated fields.",
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                }
+            }
+        },
+        "query": {
+            "description": "DQL query parts. Each select alias becomes a field in the result row.",
+            "type": "object",
+            "properties": {
+                "select": {
+                    "description": "Selected expressions. Use 'expr as alias' so columns, sorters and filters can refer to the alias. IDENTITY(e.relation) as alias selects only the id of a relation. A map keyed by name lets an extending grid override single entries.",
+                    "type": [
+                        "array",
+                        "object",
+                        "null"
+                    ],
+                    "items": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "additionalProperties": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "examples": [
+                        [
+                            "e.id",
+                            "e.name",
+                            "IDENTITY(e.status) as status"
+                        ]
+                    ]
+                },
+                "from": {
+                    "description": "Root entities with their alias. Search grids list search aliases as plain strings.",
+                    "type": [
+                        "array",
+                        "null"
+                    ],
+                    "items": {
+                        "anyOf": [
+                            {
+                                "type": [
+                                    "object",
+                                    "null"
+                                ],
+                                "properties": {
+                                    "table": {
+                                        "description": "Entity class.",
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "alias": {
+                                        "description": "DQL alias used in the rest of the query.",
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    }
+                                }
+                            },
+                            {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
+                        ]
+                    },
+                    "examples": [
+                        [
+                            {
+                                "table": "App\\Entity\\Entity",
+                                "alias": "e"
+                            }
+                        ]
+                    ]
+                },
+                "join": {
+                    "description": "Joins, grouped by left and inner.",
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "properties": {
+                        "left": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/definitions/joins"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        },
+                        "inner": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/definitions/joins"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "where": {
+                    "description": "Fixed conditions, grouped by and and or. Bind values with :param and source.bind_parameters.",
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "properties": {
+                        "and": {
+                            "type": [
+                                "array",
+                                "null"
+                            ],
+                            "items": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
+                        },
+                        "or": {
+                            "type": [
+                                "array",
+                                "null"
+                            ],
+                            "items": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
+                        }
+                    },
+                    "examples": [
+                        {
+                            "and": [
+                                "e.archived = false"
+                            ]
+                        }
+                    ]
+                },
+                "groupBy": {
+                    "description": "GROUP BY expression.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "having": {
+                    "description": "HAVING expression.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "orderBy": {
+                    "description": "Fixed ordering, applied before the grid sorters.",
+                    "type": [
+                        "array",
+                        "null"
+                    ],
+                    "items": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "properties": {
+                            "column": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "dir": {
+                                "enum": [
+                                    "ASC",
+                                    "DESC",
+                                    "asc",
+                                    "desc",
+                                    null
+                                ]
+                            }
+                        }
+                    },
+                    "examples": [
+                        [
+                            {
+                                "column": "e.createdAt",
+                                "dir": "DESC"
+                            }
+                        ]
+                    ]
+                }
+            }
+        },
+        "joins": {
+            "description": "A list of joins, or a map keyed by a name so a grid that extends this one can override a single join.",
+            "type": [
+                "array",
+                "object",
+                "null"
+            ],
+            "items": {
+                "type": [
+                    "object",
+                    "null"
+                ],
+                "properties": {
+                    "join": {
+                        "description": "Relation path (alias.relation) or an entity class.",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "alias": {
+                        "description": "Alias of the joined entity.",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "conditionType": {
+                        "description": "WITH or ON, needed when condition is set.",
+                        "enum": [
+                            "WITH",
+                            "ON",
+                            null
+                        ]
+                    },
+                    "condition": {
+                        "description": "Extra join condition.",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "additionalProperties": {
+                "type": [
+                    "object",
+                    "null"
+                ],
+                "properties": {
+                    "join": {
+                        "description": "Relation path (alias.relation) or an entity class.",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "alias": {
+                        "description": "Alias of the joined entity.",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "conditionType": {
+                        "description": "WITH or ON, needed when condition is set.",
+                        "enum": [
+                            "WITH",
+                            "ON",
+                            null
+                        ]
+                    },
+                    "condition": {
+                        "description": "Extra join condition.",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            }
+        },
+        "propertyType": {
+            "description": "How the value is produced. field (default) reads the result field, url builds a route, twig renders a template, callback calls a callable, localized_value picks the translation for the current localization.",
+            "anyOf": [
+                {
+                    "enum": [
+                        "field",
+                        "url",
+                        "link",
+                        "twig",
+                        "callback",
+                        "translatable",
+                        "localized_number",
+                        "localized_value",
+                        "money_value"
+                    ]
+                },
+                {
+                    "type": "string"
+                }
+            ]
+        },
+        "frontendType": {
+            "description": "How the value is formatted and rendered in the browser. select needs choices, html is rendered unescaped.",
+            "anyOf": [
+                {
+                    "enum": [
+                        "string",
+                        "integer",
+                        "decimal",
+                        "percent",
+                        "currency",
+                        "boolean",
+                        "date",
+                        "datetime",
+                        "time",
+                        "select",
+                        "multi-select",
+                        "html",
+                        "array",
+                        "simple_array",
+                        "row_array"
+                    ]
+                },
+                {
+                    "type": "string"
+                }
+            ]
+        },
+        "property": {
+            "type": [
+                "object",
+                "array"
+            ],
+            "properties": {
+                "type": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/propertyType"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "route": {
+                    "description": "Route name, for type url.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "params": {
+                    "description": "Route parameters taken from the row. A list maps same-named fields, a map is route parameter to row field.",
+                    "type": [
+                        "array",
+                        "object",
+                        "null"
+                    ]
+                },
+                "data_name": {
+                    "description": "Result field to read when it differs from the property name.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "frontend_type": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/frontendType"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "template": {
+                    "description": "Twig template, for type twig. It gets the row as record and the value as value.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "callable": {
+                    "description": "Callable, for type callback. It gets the result record.",
+                    "type": [
+                        "string",
+                        "array",
+                        "null"
+                    ]
+                }
+            }
+        },
+        "column": {
+            "type": [
+                "object",
+                "array"
+            ],
+            "properties": {
+                "label": {
+                    "description": "Translation key of the column header.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "type": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/propertyType"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "frontend_type": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/frontendType"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "data_name": {
+                    "description": "Result field to read when it differs from the column name.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "template": {
+                    "description": "Twig template, for type twig. It gets the row as record and the value as value.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "choices": {
+                    "description": "Value to label map for frontend_type select. Can be an expression such as \"@oro_entity_extend.enum_value_provider->getEnumChoicesByCode('code')\".",
+                    "type": [
+                        "object",
+                        "array",
+                        "string",
+                        "null"
+                    ]
+                },
+                "translatable": {
+                    "description": "Translate the value as a translation key. Default false.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "renderable": {
+                    "description": "false hides the column by default; the user can switch it on in the grid settings.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "order": {
+                    "description": "Position in the default column order.",
+                    "type": [
+                        "integer",
+                        "null"
+                    ]
+                },
+                "required": {
+                    "description": "true means the user cannot hide the column.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "editable": {
+                    "description": "Allows editing the cell in the frontend.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "shortenableLabel": {
+                    "description": "false keeps the header label from being shortened in narrow columns.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "inline_editing": {
+                    "description": "Per column inline editing settings, used with inline_editing.behaviour enable_selected.",
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "properties": {
+                        "enable": {
+                            "type": [
+                                "boolean",
+                                "null"
+                            ]
+                        },
+                        "editor": {
+                            "description": "Frontend editor view and its options.",
+                            "type": [
+                                "object",
+                                "null"
+                            ]
+                        },
+                        "save_api_accessor": {
+                            "description": "Route and HTTP method that store the edited value.",
+                            "type": [
+                                "object",
+                                "null"
+                            ]
+                        },
+                        "autocomplete_api_accessor": {
+                            "description": "Data source for relation editors.",
+                            "type": [
+                                "object",
+                                "null"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "sorters": {
+            "description": "Sortable columns and the default sort order.",
+            "type": [
+                "object",
+                "array"
+            ],
+            "properties": {
+                "columns": {
+                    "description": "Sortable columns, keyed by column name.",
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "additionalProperties": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "properties": {
+                            "data_name": {
+                                "description": "DQL expression or alias to ORDER BY, for example e.createdAt.",
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "disabled": {
+                                "description": "Turns sorting off for this column, for example in a grid that extends another.",
+                                "type": [
+                                    "boolean",
+                                    "null"
+                                ]
+                            },
+                            "type": {
+                                "description": "Value type used by some sorters, for example string or integer.",
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "apply_callback": {
+                                "description": "Callable that applies the sort itself instead of ORDER BY data_name.",
+                                "type": [
+                                    "string",
+                                    "array",
+                                    "null"
+                                ]
+                            }
+                        }
+                    },
+                    "examples": [
+                        {
+                            "name": {
+                                "data_name": "e.name"
+                            }
+                        }
+                    ]
+                },
+                "default": {
+                    "description": "Sort applied when the user has not chosen one, column name to direction.",
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "additionalProperties": {
+                        "enum": [
+                            "ASC",
+                            "DESC",
+                            null
+                        ]
+                    },
+                    "examples": [
+                        {
+                            "createdAt": "DESC"
+                        }
+                    ]
+                },
+                "multiple_sorting": {
+                    "description": "Lets the user sort by more than one column.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "disable_default_sorting": {
+                    "description": "Do not sort when the user has not chosen a sort, not even by id.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "toolbar_sorting": {
+                    "description": "Shows a sort dropdown in the toolbar, used in board and mobile views.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "disable_not_selected_option": {
+                    "description": "Removes the 'not sorted' option from the toolbar sort dropdown.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                }
+            }
+        },
+        "filters": {
+            "description": "Filters above the grid and their default values.",
+            "type": [
+                "object",
+                "array"
+            ],
+            "properties": {
+                "columns": {
+                    "description": "Filters, keyed by name (usually the column name).",
+                    "type": [
+                        "object",
+                        "null",
+                        "array"
+                    ],
+                    "additionalProperties": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/definitions/filter"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "examples": [
+                        {
+                            "name": {
+                                "type": "string",
+                                "data_name": "e.name"
+                            }
+                        }
+                    ]
+                },
+                "default": {
+                    "description": "Filter values applied when the grid opens, filter name to { value, type }.",
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "examples": [
+                        {
+                            "status": {
+                                "value": [
+                                    "open"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        "filter": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "description": "Filter type. Required. enum needs enum_code, entity needs options.field_options.class, choice needs options.field_options.choices.",
+                    "anyOf": [
+                        {
+                            "enum": [
+                                "string",
+                                "number",
+                                "number-range",
+                                "percent",
+                                "currency",
+                                "boolean",
+                                "date",
+                                "datetime",
+                                "choice",
+                                "single_choice",
+                                "choice-tree",
+                                "enum",
+                                "multi_enum",
+                                "entity",
+                                "dictionary",
+                                "duplicate",
+                                "skip_empty_periods"
+                            ]
+                        },
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "data_name": {
+                    "description": "DQL expression or alias the filter applies to. Required.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "label": {
+                    "description": "Translation key; defaults to the column label.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "enum_code": {
+                    "description": "Enum code, for type enum and multi_enum.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "renderable": {
+                    "description": "false hides the filter by default; the user can still add it from the filter manager. Default true.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "options": {
+                    "description": "Filter specific options, for example field_options for the form field.",
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "properties": {
+                        "field_options": {
+                            "description": "Options of the Symfony form field behind the filter.",
+                            "type": [
+                                "object",
+                                "null"
+                            ]
+                        }
+                    }
+                },
+                "visible": {
+                    "description": "false keeps the filter out of the grid completely. Default true.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "disabled": {
+                    "description": "true removes the filter, also one inherited from a parent grid.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "filter_by_having": {
+                    "description": "Puts the condition in HAVING instead of WHERE. Needed when data_name is an aggregate or a select alias.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "filter_condition": {
+                    "description": "How this filter combines with the others. Default AND.",
+                    "enum": [
+                        "AND",
+                        "OR",
+                        null
+                    ]
+                },
+                "translatable": {
+                    "description": "Translate the filter label. Default true.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "force_like": {
+                    "description": "String filter matches with LIKE even for the equals operator.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "case_insensitive": {
+                    "description": "String comparison ignores case. Default true.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "min_length": {
+                    "description": "Minimum input length before the filter applies.",
+                    "type": [
+                        "integer",
+                        "null"
+                    ]
+                },
+                "max_length": {
+                    "description": "Maximum input length.",
+                    "type": [
+                        "integer",
+                        "null"
+                    ]
+                },
+                "value_conversion": {
+                    "description": "Callable that converts the entered value before filtering.",
+                    "type": [
+                        "string",
+                        "array",
+                        "null"
+                    ]
+                }
+            }
+        },
+        "action": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "description": "navigate opens link, delete asks for confirmation and sends DELETE to link, ajax calls link, dialog opens link in a dialog, frontend runs a JS module.",
+                    "anyOf": [
+                        {
+                            "enum": [
+                                "navigate",
+                                "delete",
+                                "ajax",
+                                "ajaxdelete",
+                                "dialog",
+                                "frontend",
+                                "button-widget",
+                                "trigger-event"
+                            ]
+                        },
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "label": {
+                    "description": "Translation key, for example oro.grid.action.view.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "icon": {
+                    "description": "Font Awesome icon name without the fa- prefix, for example eye, edit, trash.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "link": {
+                    "description": "Name of the property (under properties) that holds the URL.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "acl_resource": {
+                    "description": "ACL resource needed to see the action.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "rowAction": {
+                    "description": "true runs this action when the user clicks the row.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "confirmation": {
+                    "description": "Asks for confirmation first.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "launcherOptions": {
+                    "description": "Frontend options of the action button, for example className.",
+                    "type": [
+                        "object",
+                        "null"
+                    ]
+                }
+            }
+        },
+        "massAction": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "description": "Mass action type, for example delete or ajax.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "label": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "icon": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "acl_resource": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "disabled": {
+                    "description": "true removes the mass action, also one inherited from a parent grid.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "entity_name": {
+                    "description": "Entity class the action works on.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "data_identifier": {
+                    "description": "DQL field that identifies the selected rows, for example e.id.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            }
+        },
+        "inlineEditing": {
+            "description": "Editing cells directly in the grid.",
+            "type": "object",
+            "properties": {
+                "enable": {
+                    "description": "Turns inline editing on.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "behaviour": {
+                    "description": "enable_all makes every supported column editable, enable_selected only the columns with inline_editing.enable: true.",
+                    "enum": [
+                        "enable_all",
+                        "enable_selected",
+                        null
+                    ]
+                },
+                "entity_name": {
+                    "description": "Entity class that is saved. Defaults to extended_entity_name.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "acl_resource": {
+                    "description": "ACL resource needed to edit.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "save_api_accessor": {
+                    "description": "Route and HTTP method that store the change. Defaults to oro_api_patch_entity_data with PATCH.",
+                    "type": [
+                        "object",
+                        "null"
+                    ]
+                },
+                "mobile_enabled": {
+                    "description": "Allows inline editing on mobile.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                }
+            },
+            "examples": [
+                {
+                    "enable": true,
+                    "behaviour": "enable_selected",
+                    "entity_name": "App\\Entity\\Entity"
+                }
+            ]
+        },
+        "totalRow": {
+            "type": "object",
+            "properties": {
+                "extends": {
+                    "description": "Total row whose config this one inherits.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "per_page": {
+                    "description": "true sums only the current page.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "hide_if_one_page": {
+                    "description": "Hides the row when all results fit on one page.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "columns": {
+                    "description": "Per column totals, keyed by column name.",
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "additionalProperties": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "properties": {
+                            "label": {
+                                "description": "Text shown in the cell, a translation key.",
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "expr": {
+                                "description": "DQL aggregate, for example SUM(o.total).",
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "formatter": {
+                                "description": "Value formatter, for example currency or integer.",
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "divisor": {
+                                "description": "Divides the result, for example 100 for amounts stored in cents.",
+                                "type": [
+                                    "integer",
+                                    "null"
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "options": {
+            "description": "Frontend and behaviour options of the grid.",
+            "type": "object",
+            "properties": {
+                "entityHint": {
+                    "description": "Translation key used in texts such as 'No records found', usually the entity's plural label.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "entity_pagination": {
+                    "description": "Adds previous and next navigation over the grid's results on the entity view page.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "export": {
+                    "description": "true enables CSV export, or a map of format to options.",
+                    "type": [
+                        "boolean",
+                        "object",
+                        "null"
+                    ]
+                },
+                "jsmodules": {
+                    "description": "Extra JS modules loaded with the grid.",
+                    "type": [
+                        "array",
+                        "null"
+                    ],
+                    "items": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                },
+                "toolbarOptions": {
+                    "description": "Pager and toolbar settings.",
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "properties": {
+                        "hide": {
+                            "description": "Hides the whole toolbar.",
+                            "type": [
+                                "boolean",
+                                "null"
+                            ]
+                        },
+                        "addRefreshAction": {
+                            "type": [
+                                "boolean",
+                                "null"
+                            ]
+                        },
+                        "addResetAction": {
+                            "type": [
+                                "boolean",
+                                "null"
+                            ]
+                        },
+                        "addDatagridSettingsManager": {
+                            "description": "Shows the column and filter manager.",
+                            "type": [
+                                "boolean",
+                                "null"
+                            ]
+                        },
+                        "pageSize": {
+                            "type": [
+                                "object",
+                                "null"
+                            ],
+                            "properties": {
+                                "hide": {
+                                    "type": [
+                                        "boolean",
+                                        "null"
+                                    ]
+                                },
+                                "default_per_page": {
+                                    "description": "Rows per page when the grid opens.",
+                                    "type": [
+                                        "integer",
+                                        "null"
+                                    ]
+                                },
+                                "items": {
+                                    "description": "Page size choices.",
+                                    "type": [
+                                        "array",
+                                        "null"
+                                    ]
+                                }
+                            }
+                        },
+                        "pagination": {
+                            "type": [
+                                "object",
+                                "null"
+                            ],
+                            "properties": {
+                                "hide": {
+                                    "type": [
+                                        "boolean",
+                                        "null"
+                                    ]
+                                },
+                                "onePage": {
+                                    "description": "Shows every row on one page.",
+                                    "type": [
+                                        "boolean",
+                                        "null"
+                                    ]
+                                }
+                            }
+                        },
+                        "placement": {
+                            "type": [
+                                "object",
+                                "null"
+                            ],
+                            "properties": {
+                                "top": {
+                                    "type": [
+                                        "boolean",
+                                        "null"
+                                    ]
+                                },
+                                "bottom": {
+                                    "type": [
+                                        "boolean",
+                                        "null"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

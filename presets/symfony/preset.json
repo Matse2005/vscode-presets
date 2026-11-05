@@ -1,0 +1,6 @@
+{
+  "description": "Symfony: Symfony LSP in the container, YAML custom tags, service and config snippets.",
+  "requires": [
+    "php"
+  ]
+}

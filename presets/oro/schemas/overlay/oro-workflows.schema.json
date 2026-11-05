@@ -1,0 +1,182 @@
+{
+    "title": "Oro workflows",
+    "properties": {
+        "workflows": {
+            "description": "Workflow definitions keyed by name. Load changes with oro:workflow:definitions:load.",
+            "additionalProperties": {
+                "properties": {
+                    "start_step": {
+                        "description": "Step a new workflow item starts in. Without it the workflow needs a start transition (is_start: true).",
+                        "examples": [
+                            "open"
+                        ]
+                    },
+                    "defaults": {
+                        "description": "Workflow defaults; active: true activates the workflow on install.",
+                        "examples": [
+                            {
+                                "active": true
+                            }
+                        ]
+                    },
+                    "metadata": {
+                        "description": "Free data stored with the definition, readable in code."
+                    },
+                    "scopes": {
+                        "description": "Scope criteria that limit where the workflow applies; empty means everywhere.",
+                        "examples": [
+                            [
+                                {
+                                    "website": 1
+                                }
+                            ]
+                        ]
+                    },
+                    "datagrids": {
+                        "description": "Grids that get a workflow step column and filter for this workflow.",
+                        "examples": [
+                            [
+                                "app-entity-grid"
+                            ]
+                        ]
+                    },
+                    "disable_operations": {
+                        "description": "Operations to hide while the workflow is active, operation name to the entity classes it is hidden for (empty list means all).",
+                        "examples": [
+                            {
+                                "UPDATE": [
+                                    "App\\Entity\\Entity"
+                                ],
+                                "DELETE": []
+                            }
+                        ]
+                    },
+                    "applications": {
+                        "description": "Where the workflow can run: default (back office) and, in OroCommerce, commerce (storefront).",
+                        "examples": [
+                            [
+                                "default"
+                            ]
+                        ]
+                    },
+                    "attributes": {
+                        "description": "Values kept on the workflow item, keyed by name and used as $name in conditions and actions. type is boolean, integer, float, string, array, object or entity; object and entity need options.class. property_path stores the value on the entity instead.",
+                        "examples": [
+                            {
+                                "comment": {
+                                    "type": "string",
+                                    "label": "app.workflow.comment.label"
+                                }
+                            }
+                        ]
+                    },
+                    "variable_definitions": {
+                        "description": "Variables an admin can set per workflow in the back office, used as $.data.variable in conditions and actions.",
+                        "examples": [
+                            {
+                                "variables": {
+                                    "threshold": {
+                                        "type": "integer",
+                                        "value": 10
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    "transition_definitions": {
+                        "description": "Conditions and actions per transition, referenced from transitions.*.transition_definition. Keys: preactions, preconditions (decide whether the button shows), conditions (checked on click), actions.",
+                        "examples": [
+                            {
+                                "close_definition": {
+                                    "conditions": {
+                                        "@not_empty": "$entity.id"
+                                    },
+                                    "actions": [
+                                        {
+                                            "@assign_value": [
+                                                "$entity.closedAt",
+                                                "now"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    "entity_restrictions": {
+                        "description": "Fields that cannot be changed in a step: attribute, field, step and mode (full blocks any change, disallow blocks the listed values, allow only allows the listed values).",
+                        "examples": [
+                            {
+                                "status_locked": {
+                                    "attribute": "entity",
+                                    "field": "status",
+                                    "mode": "full",
+                                    "step": "closed"
+                                }
+                            }
+                        ]
+                    },
+                    "exclusive_active_groups": {
+                        "description": "Only one workflow per group can be active at a time; activating one deactivates the others.",
+                        "examples": [
+                            [
+                                "order_flow"
+                            ]
+                        ]
+                    },
+                    "exclusive_record_groups": {
+                        "description": "Per record, only one workflow of the group can be started.",
+                        "examples": [
+                            [
+                                "order_flow"
+                            ]
+                        ]
+                    },
+                    "name": {
+                        "description": "Workflow name; set automatically from the key."
+                    },
+                    "steps": {
+                        "description": "Steps keyed by name: order, is_final, allowed_transitions, label, entity_acl.",
+                        "examples": [
+                            {
+                                "open": {
+                                    "order": 10,
+                                    "allowed_transitions": [
+                                        "close"
+                                    ]
+                                },
+                                "closed": {
+                                    "order": 20,
+                                    "is_final": true
+                                }
+                            }
+                        ]
+                    },
+                    "transitions": {
+                        "description": "Transitions keyed by name: step_to, transition_definition, is_start, is_hidden, frontend_options, form_options, triggers.",
+                        "examples": [
+                            {
+                                "close": {
+                                    "step_to": "closed",
+                                    "transition_definition": "close_definition",
+                                    "frontend_options": {
+                                        "icon": "fa-check"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            },
+            "examples": [
+                {
+                    "app_entity_flow": {
+                        "entity": "App\\Entity\\Entity",
+                        "entity_attribute": "entity",
+                        "start_step": "open"
+                    }
+                }
+            ]
+        }
+    }
+}

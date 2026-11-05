@@ -1,0 +1,80 @@
+{
+    "title": "Oro JS modules",
+    "type": "object",
+    "properties": {
+        "aliases": {
+            "description": "Short module names for longer module paths.",
+            "type": "object",
+            "examples": [
+                {
+                    "app/foo": "app/js/app/views/foo-view"
+                }
+            ]
+        },
+        "configs": {
+            "description": "Module config, read in JS with module.config(). Keyed by module name.",
+            "type": "object",
+            "examples": [
+                {
+                    "app/js/app/views/foo-view": {
+                        "pageSize": 25
+                    }
+                }
+            ]
+        },
+        "dynamic-imports": {
+            "description": "Modules that can be loaded on demand, grouped in named chunks (commons is loaded on every page).",
+            "type": "object",
+            "additionalProperties": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "examples": [
+                {
+                    "commons": [
+                        "app/js/app/views/foo-view"
+                    ]
+                }
+            ]
+        },
+        "app-modules": {
+            "description": "Modules run once when the application starts.",
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "examples": [
+                [
+                    "app/js/app/modules/foo-module"
+                ]
+            ]
+        },
+        "map": {
+            "description": "Module substitutions per requesting module, '*' for all. Used to swap a library for an Oro extension of it.",
+            "type": "object",
+            "examples": [
+                {
+                    "*": {
+                        "backbone": "oroui/js/extend/backbone"
+                    }
+                }
+            ]
+        },
+        "shim": {
+            "description": "Exports and dependencies for non-module libraries.",
+            "type": "object",
+            "examples": [
+                {
+                    "jquery": {
+                        "expose": [
+                            "$",
+                            "jQuery"
+                        ]
+                    }
+                }
+            ]
+        }
+    }
+}

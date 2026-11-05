@@ -1,0 +1,191 @@
+{
+    "title": "Oro API",
+    "properties": {
+        "api": {
+            "description": "JSON:API configuration. Check the result with oro:api:config:dump and oro:api:debug.",
+            "properties": {
+                "entity_aliases": {
+                    "description": "API names of entities, class to { alias, plural_alias }.",
+                    "examples": [
+                        {
+                            "App\\Entity\\Entity": {
+                                "alias": "appentity",
+                                "plural_alias": "appentities"
+                            }
+                        }
+                    ]
+                },
+                "entities": {
+                    "description": "Entity config keyed by class. An entity listed here (even with ~) is exposed.",
+                    "additionalProperties": {
+                        "properties": {
+                            "inherit": {
+                                "description": "false stops this config from merging the config of a parent class."
+                            },
+                            "exclusion_policy": {
+                                "description": "all exposes only the fields listed under fields, custom_fields hides fields added through the UI, none exposes everything.",
+                                "examples": [
+                                    "all"
+                                ]
+                            },
+                            "max_results": {
+                                "description": "Maximum number of records in a list response; -1 for no limit.",
+                                "examples": [
+                                    100
+                                ]
+                            },
+                            "order_by": {
+                                "description": "Default sort order, field to ASC or DESC.",
+                                "examples": [
+                                    {
+                                        "createdAt": "DESC"
+                                    }
+                                ]
+                            },
+                            "hints": {
+                                "description": "Doctrine query hints added to the query.",
+                                "examples": [
+                                    [
+                                        "HINT_TRANSLATABLE"
+                                    ]
+                                ]
+                            },
+                            "form_type": {
+                                "description": "Form type used to create and update the resource."
+                            },
+                            "form_options": {
+                                "description": "Options of that form, for example validation_groups.",
+                                "examples": [
+                                    {
+                                        "validation_groups": [
+                                            "Default",
+                                            "api"
+                                        ]
+                                    }
+                                ]
+                            },
+                            "form_event_subscriber": {
+                                "description": "Form event subscriber service(s) added to the form."
+                            },
+                            "identifier_field_names": {
+                                "description": "Fields that identify the resource instead of the entity id.",
+                                "examples": [
+                                    [
+                                        "code"
+                                    ]
+                                ]
+                            },
+                            "identifier_description": {
+                                "description": "Text for the identifier in the API documentation."
+                            },
+                            "disable_inclusion": {
+                                "description": "true disallows the include filter for this resource."
+                            },
+                            "disable_fieldset": {
+                                "description": "true disallows the fields filter for this resource."
+                            },
+                            "disable_meta_properties": {
+                                "description": "true disallows meta properties, or a list of the meta properties to disallow."
+                            },
+                            "disable_partial_load": {
+                                "description": "true always loads full entities instead of only the requested fields."
+                            },
+                            "inner_join_associations": {
+                                "description": "Associations that can be joined with INNER JOIN because they are always set."
+                            },
+                            "documentation_resource": {
+                                "description": "Markdown file with the API documentation of this resource.",
+                                "examples": [
+                                    "@AcmeAppBundle/Resources/doc/api/entity.md"
+                                ]
+                            },
+                            "upsert": {
+                                "description": "Allows create or update in one request (upsert), by id or by a group of fields.",
+                                "examples": [
+                                    {
+                                        "add": [
+                                            [
+                                                "code"
+                                            ]
+                                        ]
+                                    }
+                                ]
+                            },
+                            "fields": {
+                                "description": "Field config keyed by API field name: exclude, property_path, data_type, description, form_type, form_options, depends_on.",
+                                "examples": [
+                                    {
+                                        "name": null,
+                                        "ownerName": {
+                                            "property_path": "owner.name"
+                                        },
+                                        "internalNotes": {
+                                            "exclude": true
+                                        }
+                                    }
+                                ]
+                            },
+                            "filters": {
+                                "description": "Filters of list requests, under fields: keyed by field, with data_type, allow_array, operators and exclude.",
+                                "examples": [
+                                    {
+                                        "fields": {
+                                            "status": {
+                                                "data_type": "string",
+                                                "allow_array": true
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            "sorters": {
+                                "description": "Fields the list can be sorted by, under fields.",
+                                "examples": [
+                                    {
+                                        "fields": {
+                                            "createdAt": null
+                                        }
+                                    }
+                                ]
+                            },
+                            "actions": {
+                                "description": "Per action (get, get_list, create, update, delete, delete_list, update_list, ...): false disables it, or a map with description, acl_resource, status_codes, form_options and fields.",
+                                "examples": [
+                                    {
+                                        "delete": false,
+                                        "update_list": true
+                                    }
+                                ]
+                            },
+                            "subresources": {
+                                "description": "Sub-resources keyed by relation name, with target_class, actions and filters.",
+                                "examples": [
+                                    {
+                                        "items": {
+                                            "actions": {
+                                                "update_relationship": false
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            "exclude": {
+                                "description": "true removes the entity from the API completely."
+                            }
+                        }
+                    },
+                    "examples": [
+                        {
+                            "App\\Entity\\Entity": {
+                                "documentation_resource": "@AcmeAppBundle/Resources/doc/api/entity.md",
+                                "actions": {
+                                    "delete": false
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}

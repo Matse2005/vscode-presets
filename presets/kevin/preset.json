@@ -1,0 +1,7 @@
+{
+  "description": "Kevin: runs the container commands with kevin app.",
+  "requires": [],
+  "defaults": {
+    "runner": "kevin app"
+  }
+}

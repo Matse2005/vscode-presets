@@ -1,0 +1,720 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Oro operations and action groups",
+    "type": "object",
+    "properties": {
+        "imports": {
+            "description": "Other yml files merged into this one. Oro reads one actions.yml per app or bundle, so split files must be imported.",
+            "type": [
+                "array",
+                "null"
+            ],
+            "items": {
+                "type": [
+                    "object",
+                    "null"
+                ],
+                "properties": {
+                    "resource": {
+                        "description": "Path relative to this file.",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            }
+        },
+        "operations": {
+            "description": "Operations (buttons on pages and grid row actions), keyed by name. Using the name of an existing operation such as DELETE or UPDATE merges into it, for example to exclude entities or grids.",
+            "type": [
+                "object",
+                "null"
+            ],
+            "additionalProperties": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/operation"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            }
+        },
+        "action_groups": {
+            "description": "Reusable lists of actions with typed parameters, keyed by name. Called with @run_action_group.",
+            "type": [
+                "object",
+                "null"
+            ],
+            "additionalProperties": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/actionGroup"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            }
+        }
+    },
+    "definitions": {
+        "conditions": {
+            "description": "Condition tree, for example '@and': [...], '@equal': [$.a, b], '@not_empty': $.data.id. Paths start with $. (the operation context); $.data is the entity or grid row.",
+            "type": [
+                "object",
+                "array",
+                "null"
+            ]
+        },
+        "actions": {
+            "description": "List of actions, each one '@action_name': options, run in order.",
+            "type": [
+                "array",
+                "null"
+            ]
+        },
+        "stringList": {
+            "type": "array",
+            "items": {
+                "type": [
+                    "string",
+                    "null"
+                ]
+            }
+        },
+        "operation": {
+            "type": "object",
+            "properties": {
+                "label": {
+                    "description": "Translation key of the button. Required.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "enabled": {
+                    "description": "false switches the operation off, also one defined by Oro.",
+                    "type": [
+                        "boolean",
+                        "string",
+                        "null"
+                    ]
+                },
+                "replace": {
+                    "description": "Keys whose value replaces the existing operation's value instead of being merged, for example [exclude_datagrids].",
+                    "type": [
+                        "array",
+                        "string",
+                        "null"
+                    ]
+                },
+                "substitute_operation": {
+                    "description": "Name of an operation this one replaces wherever that one would show.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "applications": {
+                    "description": "Where the operation is available, for example [default] for the back office. OroCommerce adds commerce for the storefront.",
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/stringList"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "service": {
+                    "description": "Service implementing the operation in PHP instead of the condition and action blocks here.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "entities": {
+                    "description": "Entity classes whose view and edit pages get the button.",
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/stringList"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "examples": [
+                        [
+                            "App\\Entity\\Entity"
+                        ]
+                    ]
+                },
+                "for_all_entities": {
+                    "description": "Shows the button for every entity. Default false.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "exclude_entities": {
+                    "description": "Entity classes to leave out, used with for_all_entities or on an existing operation.",
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/stringList"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "datagrids": {
+                    "description": "Grids that get the operation as a row action.",
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/stringList"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "examples": [
+                        [
+                            "app-entity-grid"
+                        ]
+                    ]
+                },
+                "for_all_datagrids": {
+                    "description": "Adds the row action to every grid. Default false.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "exclude_datagrids": {
+                    "description": "Grids to leave out, used with for_all_datagrids or on an existing operation.",
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/stringList"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "examples": [
+                        [
+                            "app-entity-grid"
+                        ]
+                    ]
+                },
+                "routes": {
+                    "description": "Routes whose pages show the button, independent of the entity.",
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/stringList"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "examples": [
+                        [
+                            "app_entity_view"
+                        ]
+                    ]
+                },
+                "groups": {
+                    "description": "Button groups the operation renders in, for example view_navButtons. Without groups it renders in the default group.",
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/stringList"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "acl_resource": {
+                    "description": "ACL resource id, or [PERMISSION, $.data] for an entity permission on the current record.",
+                    "type": [
+                        "string",
+                        "array",
+                        "null"
+                    ],
+                    "examples": [
+                        "app_entity_update"
+                    ]
+                },
+                "order": {
+                    "description": "Position among the buttons, lower first. Default 0.",
+                    "type": [
+                        "integer",
+                        "null"
+                    ]
+                },
+                "page_reload": {
+                    "description": "Reload the page after the operation. Default true.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "button_options": {
+                    "description": "How the button looks.",
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "properties": {
+                        "icon": {
+                            "description": "Font Awesome class, for example fa-refresh.",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "class": {
+                            "description": "Extra CSS classes.",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "group": {
+                            "description": "Dropdown group label, puts the button in a dropdown.",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "template": {
+                            "description": "Twig template of the button.",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "aria_label": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "page_component_module": {
+                            "description": "JS module that handles the click.",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "page_component_options": {
+                            "type": [
+                                "object",
+                                "null"
+                            ]
+                        },
+                        "data": {
+                            "description": "Extra data attributes on the button.",
+                            "type": [
+                                "object",
+                                "null"
+                            ]
+                        }
+                    },
+                    "examples": [
+                        {
+                            "icon": "fa-refresh"
+                        }
+                    ]
+                },
+                "frontend_options": {
+                    "description": "Dialog and confirmation settings.",
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "properties": {
+                        "confirmation": {
+                            "description": "Confirmation dialog before running, true or { title, message, okText, ... }.",
+                            "type": [
+                                "boolean",
+                                "object",
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "show_dialog": {
+                            "description": "Whether the form opens in a dialog.",
+                            "type": [
+                                "boolean",
+                                "null"
+                            ]
+                        },
+                        "template": {
+                            "description": "Twig template of the dialog.",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "title": {
+                            "description": "Translation key of the dialog title.",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "title_parameters": {
+                            "type": [
+                                "object",
+                                "null"
+                            ]
+                        },
+                        "options": {
+                            "description": "Dialog widget options, for example width, modal, allowMaximize.",
+                            "type": [
+                                "object",
+                                "null"
+                            ]
+                        }
+                    },
+                    "examples": [
+                        {
+                            "confirmation": {
+                                "title": "app.operation.confirm.title",
+                                "message": "app.operation.confirm.message"
+                            }
+                        }
+                    ]
+                },
+                "datagrid_options": {
+                    "description": "Turns the operation into a mass action on the grids listed in datagrids.",
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "properties": {
+                        "mass_action": {
+                            "description": "Mass action config.",
+                            "type": [
+                                "object",
+                                "null"
+                            ]
+                        },
+                        "mass_action_provider": {
+                            "description": "Service providing mass actions.",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "data": {
+                            "type": [
+                                "object",
+                                "null"
+                            ]
+                        }
+                    }
+                },
+                "attributes": {
+                    "description": "Values the operation works with, usually filled by the form. Keyed by attribute name, used as $.name.",
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "additionalProperties": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "properties": {
+                            "label": {
+                                "description": "Translation key, also the form field label.",
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "type": {
+                                "description": "Value type.",
+                                "enum": [
+                                    "boolean",
+                                    "bool",
+                                    "integer",
+                                    "int",
+                                    "float",
+                                    "string",
+                                    "array",
+                                    "object",
+                                    "entity",
+                                    null
+                                ]
+                            },
+                            "property_path": {
+                                "description": "Reads and writes the value at this path, for example $.data.status.",
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "entity_acl": {
+                                "description": "ACL checks for an entity attribute, for example { update: false }.",
+                                "type": [
+                                    "object",
+                                    "null"
+                                ]
+                            },
+                            "options": {
+                                "description": "Type options. object and entity need class.",
+                                "type": [
+                                    "object",
+                                    "null"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "form_options": {
+                    "description": "Form shown before the operation runs.",
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "properties": {
+                        "attribute_fields": {
+                            "description": "Form fields, keyed by attribute name.",
+                            "type": [
+                                "object",
+                                "null"
+                            ],
+                            "additionalProperties": {
+                                "type": [
+                                    "object",
+                                    "null"
+                                ],
+                                "properties": {
+                                    "form_type": {
+                                        "description": "Symfony form type class.",
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "options": {
+                                        "description": "Form type options.",
+                                        "type": [
+                                            "object",
+                                            "null"
+                                        ]
+                                    }
+                                }
+                            }
+                        },
+                        "attribute_default_values": {
+                            "description": "Initial field values, attribute name to value or path.",
+                            "type": [
+                                "object",
+                                "null"
+                            ]
+                        },
+                        "validation_groups": {
+                            "description": "Validation groups for the form.",
+                            "anyOf": [
+                                {
+                                    "$ref": "#/definitions/stringList"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "preactions": {
+                    "description": "Actions run before the preconditions, to prepare values the preconditions need.",
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/actions"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "preconditions": {
+                    "description": "Decide whether the button shows at all. Checked on every page and row, so keep them cheap.",
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/conditions"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "examples": [
+                        {
+                            "@and": [
+                                {
+                                    "@not_empty": "$.data.id"
+                                },
+                                {
+                                    "@equal": [
+                                        "$.data.status.id",
+                                        "open"
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "form_init": {
+                    "description": "Actions run before the form is shown, to set initial values.",
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/actions"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "conditions": {
+                    "description": "Checked when the user runs the operation; failing ones show an error instead of running.",
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/conditions"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "actions": {
+                    "description": "What the operation does, run in order.",
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/actions"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "examples": [
+                        [
+                            {
+                                "@call_service_method": {
+                                    "service": "App\\Service\\Handler",
+                                    "method": "handle",
+                                    "method_parameters": [
+                                        "$.data"
+                                    ]
+                                }
+                            },
+                            {
+                                "@flash_message": {
+                                    "message": "app.operation.done",
+                                    "type": "success"
+                                }
+                            }
+                        ]
+                    ]
+                }
+            }
+        },
+        "actionGroup": {
+            "type": "object",
+            "properties": {
+                "parameters": {
+                    "description": "Input parameters, keyed by name, used as $.name.",
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "additionalProperties": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "properties": {
+                            "type": {
+                                "description": "Expected type: a scalar type name or a class.",
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "message": {
+                                "description": "Error message when the value has the wrong type.",
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "default": {
+                                "description": "Value when the caller leaves the parameter out; without it the parameter is required."
+                            },
+                            "service_argument_name": {
+                                "description": "Method argument the parameter is passed as, when it differs from the parameter name.",
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "acl_resource": {
+                    "description": "ACL resource needed to run the group.",
+                    "type": [
+                        "string",
+                        "array",
+                        "null"
+                    ]
+                },
+                "conditions": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/conditions"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "actions": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/actions"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "service": {
+                    "description": "Service that implements the group instead of conditions and actions; used with method.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "method": {
+                    "description": "Service method to call, used with service.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "return_value_name": {
+                    "description": "Parameter name under which the method's return value is stored.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            }
+        }
+    }
+}

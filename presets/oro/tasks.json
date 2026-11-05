@@ -1,0 +1,31 @@
+{
+  "tasks": [
+    {
+      "label": "Link Oro documentation",
+      "type": "shell",
+      "command": "\"${workspaceFolder}/.vscode/presets/oro/scripts/link-documentation.sh\" \"${workspaceFolder}\"",
+      "options": {
+        "env": {
+          "ORO_DOCUMENTATION": "{{oroDocumentation}}"
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Regenerate YAML schemas",
+      "type": "shell",
+      "command": "\"${workspaceFolder}/.vscode/install.sh\" --schemas",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "problemMatcher": []
+    }
+  ]
+}

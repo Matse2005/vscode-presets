@@ -1,0 +1,393 @@
+{
+    "Symfony: service": {
+        "scope": "yaml",
+        "prefix": "sf-service",
+        "body": [
+            "${1:App\\\\Service\\\\Foo}:",
+            "\targuments:",
+            "\t\t\\$${2:dependency}: '@${3:service.id}'",
+            "$0"
+        ],
+        "description": "Service with a named argument. The id is the FQCN, so it autowires as a type."
+    },
+    "Symfony: decorator": {
+        "scope": "yaml",
+        "prefix": "sf-decorates",
+        "body": [
+            "${1:App\\\\Service\\\\DecoratedFoo}:",
+            "\tdecorates: ${2:original.service.id}",
+            "\targuments:",
+            "\t\t\\$${3:inner}: '@.inner'"
+        ],
+        "description": "Decorates an existing service. @.inner is the original service."
+    },
+    "Symfony: alias": {
+        "scope": "yaml",
+        "prefix": "sf-alias",
+        "body": "${1:App\\\\Contract\\\\FooInterface}: '@${2:App\\\\Service\\\\Foo}'",
+        "description": "Binds an interface to an implementation."
+    },
+    "Symfony: _defaults": {
+        "scope": "yaml",
+        "prefix": "sf-defaults",
+        "body": [
+            "_defaults:",
+            "\tautowire: true",
+            "\tautoconfigure: ${1|false,true|}",
+            "\tpublic: false"
+        ],
+        "description": "Defaults for every service in this file."
+    },
+    "Symfony: controller service": {
+        "scope": "yaml",
+        "prefix": "sf-controller",
+        "body": [
+            "${1:App\\\\Controller\\\\FooController}:",
+            "\tpublic: true",
+            "\tcalls:",
+            "\t\t- ['setContainer', ['@Psr\\Container\\ContainerInterface']]",
+            "\ttags:",
+            "\t\t- { name: container.service_subscriber }"
+        ],
+        "description": "Controller extending AbstractController, registered without autoconfigure."
+    },
+    "Symfony: console command": {
+        "scope": "yaml",
+        "prefix": "sf-command",
+        "body": [
+            "${1:App\\\\Command\\\\FooCommand}:",
+            "\ttags:",
+            "\t\t- { name: console.command }"
+        ],
+        "description": "Console command. The name comes from #[AsCommand] on the class."
+    },
+    "Symfony: kernel event listener": {
+        "scope": "yaml",
+        "prefix": "sf-listener",
+        "body": [
+            "${1:App\\\\EventListener\\\\FooListener}:",
+            "\ttags:",
+            "\t\t- { name: kernel.event_listener, event: ${2:kernel.request}, method: ${3:onKernelRequest}, priority: ${4:0} }"
+        ],
+        "description": "Event listener. Higher priority runs earlier."
+    },
+    "Symfony: Doctrine entity listener": {
+        "scope": "yaml",
+        "prefix": "sf-entity-listener",
+        "body": [
+            "${1:App\\\\EventListener\\\\FooEntityListener}:",
+            "\ttags:",
+            "\t\t- { name: doctrine.orm.entity_listener, entity: ${2:App\\\\Entity\\\\Foo}, event: ${3|prePersist,postPersist,preUpdate,postUpdate,preRemove,postRemove,postLoad|} }"
+        ],
+        "description": "Doctrine listener that only fires for one entity class."
+    },
+    "Symfony: Doctrine event listener": {
+        "scope": "yaml",
+        "prefix": "sf-doctrine-listener",
+        "body": [
+            "${1:App\\\\EventListener\\\\FooDoctrineListener}:",
+            "\ttags:",
+            "\t\t- { name: doctrine.event_listener, event: ${2|onFlush,postFlush,prePersist,postPersist,preUpdate,postUpdate|} }"
+        ],
+        "description": "Doctrine listener for every entity. Prefer an entity listener when only one class matters."
+    },
+    "Symfony: form type extension": {
+        "scope": "yaml",
+        "prefix": "sf-form-extension",
+        "body": [
+            "${1:App\\\\Form\\\\Extension\\\\FooTypeExtension}:",
+            "\ttags:",
+            "\t\t- { name: form.type_extension, extended_type: ${2:Vendor\\\\Form\\\\Type\\\\FooType} }"
+        ],
+        "description": "Adds fields or options to an existing form type."
+    },
+    "Symfony: logger channel": {
+        "scope": "yaml",
+        "prefix": "sf-logger",
+        "body": "\\$${1:logger}: '@monolog.logger.${2:channel}'",
+        "description": "Injects the logger of a monolog channel. The channel must be declared under monolog.channels."
+    },
+    "Symfony: attribute routes": {
+        "scope": "yaml",
+        "prefix": "sf-route-resource",
+        "body": [
+            "${1:app_foo}:",
+            "\tresource: ${2:App\\\\Controller\\\\FooController}",
+            "\ttype: attribute",
+            "\tprefix: /${3:foo}"
+        ],
+        "description": "Loads the #[Route] attributes of one controller."
+    },
+    "Oro: message queue topic": {
+        "scope": "yaml",
+        "prefix": "oro-mq-topic",
+        "body": [
+            "${1:App\\\\Async\\\\Topic\\\\FooTopic}:",
+            "\ttags:",
+            "\t\t- { name: oro_message_queue.topic }"
+        ],
+        "description": "Message queue topic class (extends AbstractTopic)."
+    },
+    "Oro: message queue processor": {
+        "scope": "yaml",
+        "prefix": "oro-mq-processor",
+        "body": [
+            "${1:App\\\\Async\\\\FooProcessor}:",
+            "\targuments:",
+            "\t\t\\$${2:dependency}: '@${3:service.id}'",
+            "\ttags:",
+            "\t\t- { name: oro_message_queue.client.message_processor }"
+        ],
+        "description": "Message processor. The topics come from getSubscribedTopics() on the class."
+    },
+    "Oro: message producer argument": {
+        "scope": "yaml",
+        "prefix": "oro-mq-producer",
+        "body": "\\$${1:producer}: '@oro_message_queue.client.message_producer'",
+        "description": "Injects the message producer."
+    },
+    "Oro: datagrid listener": {
+        "scope": "yaml",
+        "prefix": "oro-datagrid-listener",
+        "body": [
+            "${1:App\\\\EventListener\\\\Datagrid\\\\FooGridListener}:",
+            "\ttags:",
+            "\t\t- { name: kernel.event_listener, event: oro_datagrid.${2|datagrid.build.before,datagrid.build.after,orm_datasource.result.after|}.${3:app-entity-grid}, method: ${4:onBuildAfter} }"
+        ],
+        "description": "Listener for one datagrid, to change its config, query or result rows."
+    },
+    "Oro: api processor": {
+        "scope": "yaml",
+        "prefix": "oro-api-processor",
+        "body": [
+            "${1:App\\\\Api\\\\Processor\\\\FooProcessor}:",
+            "\ttags:",
+            "\t\t- { name: oro.api.processor, action: ${2|get,get_list,create,update,delete,customize_loaded_data,customize_form_data|}, group: ${3:normalize_input}, class: ${4:App\\\\Entity\\\\Foo}, priority: ${5:-10} }"
+        ],
+        "description": "API processor. action, group and priority decide where it runs in the chain. Check with oro:api:debug."
+    },
+    "Symfony: load a namespace": {
+        "scope": "yaml",
+        "prefix": "sf-resource",
+        "body": [
+            "${1:App\\\\}:",
+            "\tresource: '${2:../src/*}'",
+            "\texclude: '${3:../src/{Entity,Migrations,Tests}}'"
+        ],
+        "description": "Registers every class in a folder as a service, with the FQCN as id."
+    },
+    "Symfony: bind": {
+        "scope": "yaml",
+        "prefix": "sf-bind",
+        "body": [
+            "bind:",
+            "\t\\$${1:argument}: '${2:@service.id}'"
+        ],
+        "description": "Gives every constructor argument with this name (and optional type) the same value. Works in _defaults or on one service."
+    },
+    "Symfony: calls": {
+        "scope": "yaml",
+        "prefix": "sf-calls",
+        "body": [
+            "calls:",
+            "\t- [${1:setFoo}, ['@${2:service.id}']]"
+        ],
+        "description": "Setter call after construction. Prefer constructor injection."
+    },
+    "Symfony: factory": {
+        "scope": "yaml",
+        "prefix": "sf-factory",
+        "body": [
+            "${1:App\\\\Service\\\\Foo}:",
+            "\tfactory: ['@${2:App\\\\Factory\\\\FooFactory}', '${3:create}']",
+            "\targuments: [$4]"
+        ],
+        "description": "Service built by calling a method on another service."
+    },
+    "Symfony: service options": {
+        "scope": "yaml",
+        "prefix": "sf-options",
+        "body": "${1|public: true,lazy: true,shared: false,abstract: true,autowire: false,autoconfigure: false|}",
+        "description": "Single service option. shared: false builds a new instance on every injection."
+    },
+    "Symfony: tag": {
+        "scope": "yaml",
+        "prefix": "sf-tag",
+        "body": [
+            "tags:",
+            "\t- { name: ${1:tag.name}, priority: ${2:0} }"
+        ],
+        "description": "Generic tag list."
+    },
+    "Symfony: twig extension": {
+        "scope": "yaml",
+        "prefix": "sf-twig-extension",
+        "body": [
+            "${1:App\\\\Twig\\\\FooExtension}:",
+            "\ttags:",
+            "\t\t- { name: twig.extension }"
+        ],
+        "description": "Twig extension. Inject heavy dependencies lazily through a service locator."
+    },
+    "Symfony: constraint validator": {
+        "scope": "yaml",
+        "prefix": "sf-validator",
+        "body": [
+            "${1:App\\\\Validator\\\\Constraints\\\\FooValidator}:",
+            "\ttags:",
+            "\t\t- { name: validator.constraint_validator }"
+        ],
+        "description": "Validator for a custom constraint. validatedBy() on the constraint must return this id."
+    },
+    "Symfony: env parameter": {
+        "scope": "yaml",
+        "prefix": "sf-env",
+        "body": "'%env(${1|string,bool,int,float,json,csv,resolve,base64,trim,default:fallback_param|}:${2:APP_VAR})%'",
+        "description": "Env variable with a processor, read at runtime. Use for credentials and secrets."
+    },
+    "Symfony: parameters": {
+        "scope": "yaml",
+        "prefix": "sf-parameters",
+        "body": [
+            "parameters:",
+            "\t${1:app.parameter}: ${2:value}"
+        ],
+        "description": "Container parameters, used as %name%."
+    },
+    "Symfony: monolog channel and handler": {
+        "scope": "yaml",
+        "prefix": "sf-monolog",
+        "body": [
+            "monolog:",
+            "\tchannels: ['${1:app_channel}']",
+            "\thandlers:",
+            "\t\t$1:",
+            "\t\t\ttype: ${2|rotating_file,stream|}",
+            "\t\t\tpath: '%kernel.logs_dir%/$1.log'",
+            "\t\t\tlevel: ${3|debug,info,notice,warning,error|}",
+            "\t\t\tchannels: ['$1']"
+        ],
+        "description": "Own log channel in its own file. The logger service is monolog.logger.$1."
+    },
+    "Symfony: route": {
+        "scope": "yaml",
+        "prefix": "sf-route",
+        "body": [
+            "${1:app_foo}:",
+            "\tpath: /${2:foo}/{${3:id}}",
+            "\tcontroller: ${4:App\\\\Controller\\\\FooController}::${5:view}",
+            "\tmethods: [${6|GET,POST,PUT,DELETE|}]",
+            "\trequirements:",
+            "\t\t$3: '\\d+'"
+        ],
+        "description": "Route defined in yaml instead of an attribute."
+    },
+    "Symfony: validation constraints": {
+        "scope": "yaml",
+        "prefix": "sf-validation",
+        "body": [
+            "${1:App\\\\Entity\\\\Foo}:",
+            "\tproperties:",
+            "\t\t${2:field}:",
+            "\t\t\t- NotBlank: ~",
+            "\t\t\t- Length:",
+            "\t\t\t\t\tmax: ${3:255}"
+        ],
+        "description": "Validation constraints in yaml (validation.yml)."
+    },
+    "Oro: custom action": {
+        "scope": "yaml",
+        "prefix": "oro-custom-action",
+        "body": [
+            "${1:App\\\\Action\\\\FooAction}:",
+            "\targuments:",
+            "\t\t- '@oro_action.expression.context_accessor'",
+            "\ttags:",
+            "\t\t- { name: oro_action.action, alias: ${2:app_foo} }"
+        ],
+        "description": "Custom action usable as '@$2' in operations, workflows and processes."
+    },
+    "Oro: custom condition": {
+        "scope": "yaml",
+        "prefix": "oro-custom-condition",
+        "body": [
+            "${1:App\\\\Condition\\\\FooCondition}:",
+            "\ttags:",
+            "\t\t- { name: oro_action.condition, alias: ${2:app_foo} }"
+        ],
+        "description": "Custom condition usable as '@$2' in preconditions and conditions."
+    },
+    "Oro: layout data provider": {
+        "scope": "yaml",
+        "prefix": "oro-layout-provider",
+        "body": [
+            "${1:App\\\\Layout\\\\DataProvider\\\\FooProvider}:",
+            "\ttags:",
+            "\t\t- { name: layout.data_provider, alias: ${2:app_foo} }"
+        ],
+        "description": "Storefront layout data provider, used as =data['$2'].method() in layout updates."
+    },
+    "Oro: autocomplete search handler": {
+        "scope": "yaml",
+        "prefix": "oro-autocomplete",
+        "body": [
+            "${1:app.autocomplete.foo}:",
+            "\tparent: oro_form.autocomplete.search_handler",
+            "\targuments:",
+            "\t\t- ${2:App\\\\Entity\\\\Foo}",
+            "\t\t- [${3:name}]",
+            "\ttags:",
+            "\t\t- { name: oro_form.autocomplete.search_handler, alias: ${4:app_foo}, acl_resource: ${5:app_foo_view} }"
+        ],
+        "description": "Search handler behind an entity select field. The entity also needs a search mapping."
+    },
+    "Oro: feature dependent service": {
+        "scope": "yaml",
+        "prefix": "oro-feature-service",
+        "body": [
+            "tags:",
+            "\t- { name: oro_featuretogle.feature, feature: ${1:app_feature} }"
+        ],
+        "description": "Marks a service (listener, processor, command) as part of a feature. The tag name really has the typo togle."
+    },
+    "Oro: entity name provider": {
+        "scope": "yaml",
+        "prefix": "oro-name-provider",
+        "body": [
+            "${1:App\\\\Provider\\\\FooNameProvider}:",
+            "\ttags:",
+            "\t\t- { name: oro_entity.name_provider, priority: ${2:100} }"
+        ],
+        "description": "Decides how an entity is named in the UI, emails and the activity list."
+    },
+    "Oro: access rule": {
+        "scope": "yaml",
+        "prefix": "oro-access-rule",
+        "body": [
+            "${1:App\\\\Acl\\\\AccessRule\\\\FooAccessRule}:",
+            "\ttags:",
+            "\t\t- { name: oro_security.access_rule, entityClass: ${2:App\\\\Entity\\\\Foo} }"
+        ],
+        "description": "Adds extra conditions to the ACL query of an entity."
+    },
+    "Oro: datagrid property formatter": {
+        "scope": "yaml",
+        "prefix": "oro-grid-property",
+        "body": [
+            "${1:App\\\\Datagrid\\\\Property\\\\FooProperty}:",
+            "\ttags:",
+            "\t\t- { name: oro_datagrid.extension.formatter.property, type: ${2:app_foo} }"
+        ],
+        "description": "Custom datagrid property type, used as type: $2 under properties or columns."
+    },
+    "Oro: import export normalizer": {
+        "scope": "yaml",
+        "prefix": "oro-normalizer",
+        "body": [
+            "${1:App\\\\ImportExport\\\\Serializer\\\\FooNormalizer}:",
+            "\ttags:",
+            "\t\t- { name: oro_importexport.normalizer }"
+        ],
+        "description": "Normalizer used by the Oro import and export serializer."
+    }
+}

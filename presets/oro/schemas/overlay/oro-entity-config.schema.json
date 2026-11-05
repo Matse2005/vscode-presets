@@ -1,0 +1,149 @@
+{
+    "title": "Oro entity config scopes",
+    "type": "object",
+    "properties": {
+        "entity_config": {
+            "description": "Entity config options, keyed by scope (entity, extend, dataaudit, ...). Values are set with #[Config] and #[ConfigField] on the entity or in migrations.",
+            "type": "object",
+            "additionalProperties": {
+                "type": "object",
+                "properties": {
+                    "entity": {
+                        "description": "Options that apply to the entity class.",
+                        "type": "object",
+                        "properties": {
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "description": "A config option of this scope, keyed by option name. Usually a map with options, grid, form and constraints; a plain value is also accepted.",
+                                    "properties": {
+                                        "options": {
+                                            "description": "Behaviour: priority, translatable, indexed, auditable, default_value, allowed_type, required_property and more.",
+                                            "type": [
+                                                "object",
+                                                "array"
+                                            ],
+                                            "examples": [
+                                                {
+                                                    "priority": 10,
+                                                    "translatable": true
+                                                }
+                                            ]
+                                        },
+                                        "grid": {
+                                            "description": "Column in the entity config grid: type, label, show_filter, filterable, sortable, choices.",
+                                            "type": [
+                                                "object",
+                                                "array"
+                                            ]
+                                        },
+                                        "form": {
+                                            "description": "Field in the entity config form: type (form type class), options, block.",
+                                            "type": [
+                                                "object",
+                                                "array"
+                                            ]
+                                        },
+                                        "import_export": {
+                                            "description": "Import and export settings of the option.",
+                                            "type": [
+                                                "object",
+                                                "array"
+                                            ]
+                                        },
+                                        "constraints": {
+                                            "description": "Validation constraints of the value.",
+                                            "type": "array"
+                                        }
+                                    }
+                                }
+                            },
+                            "form": {
+                                "description": "Form layout, for example block_config.",
+                                "type": [
+                                    "object",
+                                    "array"
+                                ]
+                            },
+                            "grid_action": {
+                                "description": "Actions in the entity config grid.",
+                                "type": "array"
+                            },
+                            "layout_action": {
+                                "description": "Buttons on the entity config page.",
+                                "type": "array"
+                            }
+                        }
+                    },
+                    "field": {
+                        "description": "Options that apply to each field.",
+                        "type": "object",
+                        "properties": {
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "description": "A config option of this scope, keyed by option name. Usually a map with options, grid, form and constraints; a plain value is also accepted.",
+                                    "properties": {
+                                        "options": {
+                                            "description": "Behaviour: priority, translatable, indexed, auditable, default_value, allowed_type, required_property and more.",
+                                            "type": [
+                                                "object",
+                                                "array"
+                                            ],
+                                            "examples": [
+                                                {
+                                                    "priority": 10,
+                                                    "translatable": true
+                                                }
+                                            ]
+                                        },
+                                        "grid": {
+                                            "description": "Column in the entity config grid: type, label, show_filter, filterable, sortable, choices.",
+                                            "type": [
+                                                "object",
+                                                "array"
+                                            ]
+                                        },
+                                        "form": {
+                                            "description": "Field in the entity config form: type (form type class), options, block.",
+                                            "type": [
+                                                "object",
+                                                "array"
+                                            ]
+                                        },
+                                        "import_export": {
+                                            "description": "Import and export settings of the option.",
+                                            "type": [
+                                                "object",
+                                                "array"
+                                            ]
+                                        },
+                                        "constraints": {
+                                            "description": "Validation constraints of the value.",
+                                            "type": "array"
+                                        }
+                                    }
+                                }
+                            },
+                            "form": {
+                                "description": "Form layout.",
+                                "type": [
+                                    "object",
+                                    "array"
+                                ]
+                            },
+                            "grid_action": {
+                                "description": "Actions in the field grid.",
+                                "type": "array"
+                            },
+                            "layout_action": {
+                                "description": "Buttons on the field config page.",
+                                "type": "array"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

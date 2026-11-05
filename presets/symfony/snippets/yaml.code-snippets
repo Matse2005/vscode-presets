@@ -1,0 +1,81 @@
+{
+    "Symfony: !php/const": {
+        "scope": "yaml",
+        "prefix": "php/const",
+        "body": "!php/const ${1:App\\\\Class::CONSTANT}",
+        "description": "Value of a PHP constant, resolved when the container is built. Example: !php/const App\\Foo::BAR"
+    },
+    "Symfony: !php/enum": {
+        "scope": "yaml",
+        "prefix": "php/enum",
+        "body": "!php/enum ${1:App\\\\Enum::Case}",
+        "description": "A PHP enum case. Example: !php/enum App\\Status::Active"
+    },
+    "Symfony: !tagged_iterator": {
+        "scope": "yaml",
+        "prefix": "tagged_iterator",
+        "body": "!tagged_iterator ${1:tag.name}",
+        "description": "Lazy iterable of every service with this tag, highest priority first. Services are only built when the loop reaches them."
+    },
+    "Symfony: !tagged_iterator (options)": {
+        "scope": "yaml",
+        "prefix": "tagged_iterator",
+        "body": "!tagged_iterator { tag: ${1:tag.name}, index_by: ${2:key} }",
+        "description": "Tagged iterator with options. index_by uses a tag attribute as the array key of each service."
+    },
+    "Symfony: !tagged_locator": {
+        "scope": "yaml",
+        "prefix": "tagged_locator",
+        "body": "!tagged_locator { tag: ${1:tag.name}, index_by: ${2:key} }",
+        "description": "Service locator holding every service with this tag. The code fetches one by key with ->get('key'); only that one is built."
+    },
+    "Symfony: !service": {
+        "scope": "yaml",
+        "prefix": "service",
+        "body": [
+            "!service",
+            "    class: ${1:App\\\\Class}",
+            "    arguments: [$2]"
+        ],
+        "description": "Inline anonymous service, defined in place and only used for this argument."
+    },
+    "Symfony: !service_locator": {
+        "scope": "yaml",
+        "prefix": "service_locator",
+        "body": [
+            "!service_locator",
+            "    ${1:key}: '@${2:service.id}'"
+        ],
+        "description": "Service locator from an explicit list of services. The code fetches one by key; only that one is built."
+    },
+    "Symfony: !iterator": {
+        "scope": "yaml",
+        "prefix": "iterator",
+        "body": "!iterator ['@${1:service.id}']",
+        "description": "Lazy iterable over an explicit list of services, built one by one while looping."
+    },
+    "Symfony: !service_closure": {
+        "scope": "yaml",
+        "prefix": "service_closure",
+        "body": "!service_closure '@${1:service.id}'",
+        "description": "Closure that returns the service when called, so the service is only built at that moment."
+    },
+    "Symfony: !closure": {
+        "scope": "yaml",
+        "prefix": "closure",
+        "body": "!closure '@${1:service.id}'",
+        "description": "Injects an invokable service as a Closure, so the receiving class can type the argument as \\Closure."
+    },
+    "Symfony: !abstract": {
+        "scope": "yaml",
+        "prefix": "abstract",
+        "body": "!abstract '${1:set by a compiler pass}'",
+        "description": "Placeholder for an argument a compiler pass fills in later. The text explains what will be put there."
+    },
+    "Symfony: !returns_clone": {
+        "scope": "yaml",
+        "prefix": "returns_clone",
+        "body": "- !returns_clone [${1:withSomething}, ['@${2:service.id}']]",
+        "description": "Used on a calls entry for a wither method. The container keeps the object the method returns instead of the original."
+    }
+}

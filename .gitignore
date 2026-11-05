@@ -1,0 +1,7 @@
+# Written by install.sh in the checkout that is a project's .vscode folder; never part of the repo.
+/settings.json
+/tasks.json
+/settings.local.json
+/*.code-snippets
+/.install-state/
+/presets/*/schemas/generated/

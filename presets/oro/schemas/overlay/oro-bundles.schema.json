@@ -1,0 +1,42 @@
+{
+    "title": "Oro bundle registration",
+    "type": "object",
+    "properties": {
+        "bundles": {
+            "description": "Bundles Oro registers automatically. Lower priority loads earlier.",
+            "type": "array",
+            "items": {
+                "anyOf": [
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "description": "Bundle class.",
+                                "type": "string"
+                            },
+                            "priority": {
+                                "description": "Load order, lower first.",
+                                "type": "integer"
+                            },
+                            "kernel": {
+                                "description": "true passes the kernel to the bundle constructor.",
+                                "type": "boolean"
+                            }
+                        }
+                    }
+                ]
+            },
+            "examples": [
+                [
+                    {
+                        "name": "Acme\\Bundle\\AppBundle\\AcmeAppBundle",
+                        "priority": 100
+                    }
+                ]
+            ]
+        }
+    }
+}
