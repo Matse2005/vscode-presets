@@ -7,7 +7,7 @@ My VS Code setup, organised in presets per project type: settings, tasks, YAML s
 
 The first run enables `php`, `symfony`, `oro` and `kevin` from `settings.local.default.json`. Change `vscodePresets.enabled` in `.vscode/settings.local.json` for another kind of project.
 
-When something in the editor or the environment stops working (`Class "Extend\Entity\EV_..." does not exist`, unexpected logouts, the database unreachable at 127.0.0.1), start with [troubleshooting](docs/troubleshooting.md).
+Run "Check vscode-presets" (`.vscode/install.sh --check`) to see the state of the setup without changing anything. When something in the editor or the environment stops working (`Class "Extend\Entity\EV_..." does not exist`, unexpected logouts, the database unreachable at 127.0.0.1), start with [troubleshooting](docs/troubleshooting.md).
 
 ## Documentation
 
@@ -28,9 +28,9 @@ When something in the editor or the environment stops working (`Class "Extend\En
 | `settings.local.default.json` | The starting `settings.local.json` for a new project |
 | `presets/<name>/` | One folder per preset: `preset.json`, settings and task fragments, snippets, hooks, scripts |
 | `docs/` | This documentation |
-| `tests/` | `run.sh` tests the install script, hooks and scripts in throwaway projects; `lint.sh` checks JSON, PHP syntax, shellcheck and executable bits |
+| `tests/` | `run.sh` tests the install script, hooks and scripts in throwaway projects; `php/run.php` tests the schema library and the base schemas (with its own `composer.json`); `lint.sh` checks JSON, PHP syntax, shellcheck and executable bits |
 | `.gitattributes` | Keeps LF line endings in a Windows checkout, so the bash scripts run |
-| `.github/workflows/tests.yml` | Runs both on every push, the install tests on Ubuntu, on macOS with bash 3.2 and on Windows in Git Bash |
+| `.github/workflows/tests.yml` | Runs them on every push: the install tests on Ubuntu, on macOS with bash 3.2 and on Windows in Git Bash, the schema library tests with Symfony 6.4 and 7 |
 | `.github/dependabot.yml` | Opens a pull request when an action used by the workflow has a new version |
 
 The generated files, `settings.json`, `tasks.json`, `extensions.json`, `launch.json`, `settings.local.json`, the `<preset>-*.code-snippets` copies and `.install-state/`, are written by `install.sh`, and `presets/<preset>/schemas/generated/` by the schemas hooks. All of them are ignored by the repo's `.gitignore`.

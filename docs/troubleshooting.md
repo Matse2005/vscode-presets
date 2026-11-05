@@ -1,6 +1,6 @@
 # Troubleshooting
 
-Problems that do not come from project code. Run the checks before forming a theory.
+Problems that do not come from project code. Run "Check vscode-presets" (`.vscode/install.sh --check`) first: it runs most of the checks below and changes nothing. Then use the sections below for the details.
 
 ## Empty extend class map after saving (oro preset)
 

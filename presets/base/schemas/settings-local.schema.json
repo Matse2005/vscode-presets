@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "vscode-presets settings.local.json",
+  "description": "Per-project settings, merged over the enabled presets by .vscode/install.sh. Any VS Code setting is allowed here; keys starting with vscodePresets. only configure install.sh.",
+  "type": "object",
+  "properties": {
+    "vscodePresets.enabled": {
+      "description": "Presets for this project. The presets they require are added, and base is always on.",
+      "type": "array",
+      "items": {
+        "enum": [
+          "kevin",
+          "oro",
+          "php",
+          "symfony"
+        ]
+      },
+      "uniqueItems": true,
+      "examples": [
+        [
+          "php",
+          "symfony",
+          "oro",
+          "kevin"
+        ]
+      ]
+    },
+    "vscodePresets.runner": {
+      "description": "Command that runs something in the PHP container, used for the Symfony LSP, PHPUnit and the schema scripts. The kevin preset sets kevin app. It must contain a command, not only spaces.",
+      "type": "string",
+      "examples": [
+        "kevin app",
+        "ddev exec"
+      ],
+      "pattern": "\\S"
+    },
+    "vscodePresets.oroDocumentation": {
+      "description": "Folder of the local Oro documentation checkout, for the \"Link Oro documentation\" task. A leading ~ is expanded when the task runs.",
+      "type": "string",
+      "examples": [
+        "~/Work/orodocumentation"
+      ]
+    },
+    "vscodePresets.extensions": {
+      "description": "Extra extension IDs for the generated extensions.json.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9-]+\\.[a-z0-9-]+$"
+      },
+      "examples": [
+        [
+          "eamodio.gitlens"
+        ]
+      ]
+    },
+    "vscodePresets.launch": {
+      "description": "Extra launch configurations, appended to the generated launch.json.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "type",
+          "request"
+        ]
+      }
+    }
+  },
+  "patternProperties": {
+    "^vscodePresets\\.(?!enabled$|runner$|oroDocumentation$|extensions$|launch$)[a-zA-Z]+$": {
+      "description": "Value for the {{name}} placeholder in a preset.",
+      "type": "string"
+    },
+    "\\+$": {
+      "description": "Appends to the list that the presets built for the key without the +, instead of replacing it.",
+      "type": "array"
+    }
+  }
+}

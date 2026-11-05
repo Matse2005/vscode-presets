@@ -24,6 +24,17 @@
         "clear": true
       },
       "problemMatcher": []
+    },
+    {
+      "label": "Check vscode-presets",
+      "type": "shell",
+      "command": "\"${workspaceFolder}/.vscode/install.sh\" --check",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "problemMatcher": []
     }
   ]
 }

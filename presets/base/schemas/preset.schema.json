@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "vscode-presets preset.json",
+  "description": "Describes a preset folder under presets/. See docs/presets.md.",
+  "type": "object",
+  "required": [
+    "description",
+    "requires"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "description": {
+      "description": "One line on what the preset adds.",
+      "type": "string"
+    },
+    "requires": {
+      "description": "Presets this one builds on; install.sh resolves them first.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9_-]+$"
+      },
+      "uniqueItems": true
+    },
+    "defaults": {
+      "description": "Default values for {{name}} placeholders, overridden by vscodePresets.<name> in settings.local.json.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  }
+}

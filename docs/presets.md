@@ -6,7 +6,7 @@ A preset is a folder under `presets/` with everything one kind of project needs.
 
 | Preset | Requires | Adds |
 | --- | --- | --- |
-| `base` | | The "Sync vscode-presets" and "Update vscode-presets" tasks, the Prettier config (`presets/base/prettierrc.json`) with the Prettier extension recommended, and Git Bash as the task shell on Windows. Always enabled |
+| `base` | | The "Sync vscode-presets", "Update vscode-presets" and "Check vscode-presets" tasks, hover and completion in `settings.local.json` and `preset.json` (which also opens `settings.local.json` as JSON with comments), the Prettier config (`presets/base/prettierrc.json`) with the Prettier extension recommended, and Git Bash as the task shell on Windows. Always enabled |
 | `php` | | php-cs-fixer on save, Intelephense and file watcher excludes, PHPUnit in the container, an Xdebug listen configuration, recommendations for the php-cs-fixer, Intelephense, PHPUnit and Xdebug extensions, the "Create php-cs-fixer local config" task |
 | `symfony` | `php` | Symfony LSP in the container, YAML custom tags (`!tagged_iterator`, `!tagged_locator`, `!php/const`, ...), snippets for Symfony YAML tags and service definitions, the YAML schemas for bundle config, services and routing (`.yml` and `.yaml`), recommendations for the Symfony and YAML extensions |
 | `oro` | `symfony` | The Symfony LSP env fix (`oro-dotenv.php`), Oro snippets, the YAML schemas for the Oro config files, the "Link Oro documentation" and "Regenerate YAML schemas" tasks |
@@ -29,6 +29,7 @@ Every file except `preset.json` is optional.
 | `snippets/*.code-snippets` | Copied to the root of `.vscode/` as `<preset>-<file>` |
 | `hooks/install.sh` | Runs on every install, in the project root |
 | `hooks/schemas.sh` | Runs on `install.sh --schemas`, in the project root |
+| `hooks/check.sh` | Runs on `install.sh --check`, in the project root. Reports with `ok`, `warn` and `fail` from `presets/base/scripts/check-lib.sh` and ends with `finish`; it must not change anything |
 | `scripts/` | Helper scripts, called from tasks or hooks |
 | other files | Used in place, for example by the container through `/app/.vscode/presets/<preset>/` |
 
@@ -69,11 +70,13 @@ The preset ships the YAML schemas for the bundle config, service files and routi
 
 The oro preset replaces `symfonyLsp.phpCommand` with a version that prepends `oro-dotenv.php`, which loads `.env-app` before the Symfony LSP boots the kernel. [Troubleshooting](troubleshooting.md) explains why. It also ships the schemas for the Oro config files (`config/oro/`, `Resources/config/oro/`) and adds Oro's `app.yml` and `routing.yml` to the bundle config and routing schemas of the symfony preset, see [YAML schemas](yaml-schemas.md).
 
+Its check reports whether the Symfony LSP command prepends `oro-dotenv.php`, the size of the extend class map, and whether the prepend loads the Oro env in the container.
+
 "Link Oro documentation" links the folder in `vscodePresets.oroDocumentation` as `.orodocumentation` in the project root. The task passes the setting to `scripts/link-documentation.sh` through its environment, and the script expands a leading `~` when it runs.
 
 ## kevin preset
 
-Sets `runner` to `kevin app`. "Restart Kevin with a clean cache" runs `scripts/start-kevin.sh`, which stops Kevin, empties `var/cache` and starts Kevin again. It refuses to run in a folder without `bin/console`.
+Sets `runner` to `kevin app`. Its check reports whether `kevin` is on the PATH and the Xdebug mode in `.env.kevin.local`. "Restart Kevin with a clean cache" runs `scripts/start-kevin.sh`, which stops Kevin, empties `var/cache` and starts Kevin again. It refuses to run in a folder without `bin/console`.
 
 ## Adding a preset
 

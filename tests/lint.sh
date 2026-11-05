@@ -39,7 +39,7 @@ fi
 if tool shellcheck; then
     scripts=()
     while IFS= read -r file; do scripts+=("$file"); done < <(files '*.sh')
-    shellcheck --severity=warning "${scripts[@]}" || failed=1
+    shellcheck --severity=warning --external-sources "${scripts[@]}" || failed=1
     echo "done shellcheck"
 fi
 

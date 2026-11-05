@@ -113,7 +113,10 @@ check "the runner is split into words in the LSP command" test "$(settings '.["s
 check "the oro preset prepends oro-dotenv.php" contains "$project/.vscode/settings.json" "auto_prepend_file=/app/.vscode/presets/oro/oro-dotenv.php"
 check "the oro preset appends to the php excludes" test "$(settings '.["intelephense.files.exclude"] | (index("**/.git/**") != null) and (index("**/public/bundles/**") != null)')" = true
 check "vscodePresets keys stay out of settings.json" test "$(settings '[keys[] | select(startswith("vscodePresets."))] | length')" = 0
-check "the tasks of all presets are there" test "$(tasks '[.tasks[].label] | sort')" = '["Create php-cs-fixer local config","Link Oro documentation","Regenerate YAML schemas","Restart Kevin with a clean cache","Sync vscode-presets","Update vscode-presets"]'
+check "the tasks of all presets are there" test "$(tasks '[.tasks[].label] | sort')" = '["Check vscode-presets","Create php-cs-fixer local config","Link Oro documentation","Regenerate YAML schemas","Restart Kevin with a clean cache","Sync vscode-presets","Update vscode-presets"]'
+check "settings.local.json is opened as JSON with comments" test "$(settings '."files.associations"["**/.vscode/settings.local.json"]')" = '"jsonc"'
+check "settings.local.json and preset.json get their schemas" test "$(settings '[."json.schemas"[].url] | map(split("/")[-1])')" = '["settings-local.schema.json","preset.schema.json"]'
+check "the check task runs install.sh --check" test "$(tasks '.tasks[] | select(.label == "Check vscode-presets") | .command | endswith("install.sh\" --check")')" = true
 check "the update task pulls fast-forward only and installs" test "$(tasks '.tasks[] | select(.label == "Update vscode-presets") | .command | test("pull --ff-only && .*/install.sh")')" = true
 check "extensions.json recommends the extensions of all presets" test "$(extensions '.recommendations')" = '["esbenp.prettier-vscode","junstyle.php-cs-fixer","bmewburn.vscode-intelephense-client","recca0120.vscode-phpunit","xdebug.php-debug","symfony.language-tools","redhat.vscode-yaml"]'
 check "launch.json listens for Xdebug with /app mapped to the project" test "$(launch '.configurations[0] | [.type, .port, .pathMappings["/app"]]')" = '["php",9003,"${workspaceFolder}"]'
@@ -228,6 +231,55 @@ check "an unknown option exits with 2" exit_code 2 --unknown
 mkdir -p "$work/elsewhere"
 cp -R "$project/.vscode/." "$work/elsewhere/"
 check "install.sh refuses to run outside a .vscode folder" sh -c "cd '$project' && ! '$shell' '$work/elsewhere/install.sh' > '$work/out' 2>&1"
+
+echo "install.sh --check"
+new_project
+stub=$work/stub-bin
+mkdir -p "$stub"
+printf '#!/bin/sh\nexit 0\n' > "$stub/kevin"
+# A runner that answers like PHP in a container, and one that cannot reach it.
+printf '#!/bin/sh\nshift\necho 8.3.0\n' > "$stub/fake-php"
+printf '#!/bin/sh\nexit 1\n' > "$stub/down"
+chmod +x "$stub/kevin" "$stub/fake-php" "$stub/down"
+check "a check before the first install does not create settings.local.json" sh -c "cd '$project' && '$shell' .vscode/install.sh --check > '$work/out' 2>&1; [ ! -e .vscode/settings.local.json ]"
+check "a check before the first install reports the missing files" contains "$work/out" ".vscode/settings.json is missing"
+set_local "{\"vscodePresets.enabled\": [\"oro\"], \"vscodePresets.runner\": \"$stub/fake-php\"}"
+install
+before=$(fingerprint)
+state_before=$(cd "$project/.vscode/.install-state" && find . -type f | LC_ALL=C sort | while IFS= read -r f; do cksum < "$f"; done | cksum)
+check "a check of an up-to-date project exits with 0" exit_code 0 --check
+check "it reports the generated files as up to date" contains "$work/out" ".vscode/settings.json is up to date"
+check "it reports the PHP version the runner reaches" contains "$work/out" "reaches PHP 8.3.0"
+check "it runs the check hooks of the presets" sh -c "grep -q 'Preset php' '$work/out' && grep -q 'Preset oro' '$work/out'"
+check "the oro check sees the prepend in the LSP command" contains "$work/out" "prepends oro-dotenv.php"
+check "a check changes nothing" test "$before" = "$(fingerprint)"
+check "a check leaves the install state alone" test "$state_before" = "$(cd "$project/.vscode/.install-state" && find . -type f | LC_ALL=C sort | while IFS= read -r f; do cksum < "$f"; done | cksum)"
+check "--check cannot be combined with --force or --schemas" sh -c "cd '$project' && '$shell' .vscode/install.sh --check --force > /dev/null 2>&1; [ \$? -eq 2 ] && '$shell' .vscode/install.sh --check --schemas > /dev/null 2>&1; [ \$? -eq 2 ]"
+set_local "{\"vscodePresets.enabled\": [\"oro\"], \"vscodePresets.runner\": \"$stub/down\"}"
+install
+check "an unreachable container fails the check" sh -c "cd '$project' && ! '$shell' .vscode/install.sh --check > '$work/out' 2>&1 && grep -q 'does not run; are the containers up' '$work/out'"
+check "the oro check warns instead of failing when the container is down" contains "$work/out" "could not check the Oro env"
+# The machine's global gitignore may ignore .vscode/ too, so this runs with an empty global git config.
+mv "$project/.gitignore" "$project/.gitignore.off"
+printf '[core]\n\texcludesFile = %s\n' "$work/no-excludes" > "$work/empty-gitconfig"
+touch "$work/no-excludes"
+check "a .vscode that git does not ignore fails the check" sh -c "cd '$project' && ! GIT_CONFIG_GLOBAL='$work/empty-gitconfig' '$shell' .vscode/install.sh --check > '$work/out' 2>&1 && grep -q 'not ignored by the project' '$work/out'"
+mv "$project/.gitignore.off" "$project/.gitignore"
+chmod -x "$project/.vscode/presets/oro/hooks/check.sh"
+if [ -x "$project/.vscode/presets/oro/hooks/check.sh" ]; then
+    skip "a hook that is not executable fails the check (this file system has no execute bit)"
+else
+    check "a hook that is not executable fails the check" sh -c "cd '$project' && ! '$shell' .vscode/install.sh --check > '$work/out' 2>&1 && grep -q 'check.sh is not executable' '$work/out'"
+fi
+chmod +x "$project/.vscode/presets/oro/hooks/check.sh"
+set_local "{\"vscodePresets.enabled\": [\"oro\"], \"vscodePresets.runner\": \"$stub/fake-php\"}"
+install
+printf '\n// my change\n' >> "$project/.vscode/tasks.json"
+check "a check reports a hand-edited file and exits with 1" sh -c "cd '$project' && ! '$shell' .vscode/install.sh --check > '$work/out' 2>&1 && grep -q 'tasks.json was changed by hand' '$work/out'"
+check "the hand edit survives the check" contains "$project/.vscode/tasks.json" "// my change"
+set_local '{"vscodePresets.enabled": ["oro", "kevin"]}'
+check "the kevin check finds kevin on the PATH" sh -c "cd '$project' && PATH='$stub:'\"\$PATH\" '$shell' .vscode/install.sh --check > '$work/out' 2>&1; grep -q 'kevin is on the PATH' '$work/out'"
+check "the kevin check reports the Xdebug mode" contains "$work/out" "Xdebug is off"
 
 echo "scripts"
 mkdir -p "$work/home/docs" "$work/docs-project"

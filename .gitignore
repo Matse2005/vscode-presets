@@ -7,3 +7,5 @@
 /*.code-snippets
 /.install-state/
 /presets/*/schemas/generated/
+/tests/php/vendor/
+/tests/php/composer.lock

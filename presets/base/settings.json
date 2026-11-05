@@ -2,5 +2,24 @@
   "prettier.configPath": ".vscode/presets/base/prettierrc.json",
   "terminal.integrated.automationProfile.windows": {
     "path": "${env:ProgramFiles}\\Git\\bin\\bash.exe"
-  }
+  },
+  "files.associations": {
+    "**/.vscode/settings.local.json": "jsonc",
+    "**/.vscode/settings.local.default.json": "jsonc"
+  },
+  "json.schemas": [
+    {
+      "fileMatch": [
+        "/.vscode/settings.local.json",
+        "/.vscode/settings.local.default.json"
+      ],
+      "url": "./.vscode/presets/base/schemas/settings-local.schema.json"
+    },
+    {
+      "fileMatch": [
+        "/.vscode/presets/*/preset.json"
+      ],
+      "url": "./.vscode/presets/base/schemas/preset.schema.json"
+    }
+  ]
 }

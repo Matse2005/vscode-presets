@@ -2,13 +2,14 @@
 # Installs or updates the enabled presets. This repo is cloned as the project's .vscode folder:
 #
 #   git clone https://github.com/Matse2005/vscode-presets.git .vscode
-#   .vscode/install.sh [--schemas] [--force]
+#   .vscode/install.sh [--schemas] [--force] [--check]
 #
 # The presets come from "vscodePresets.enabled" in .vscode/settings.local.json. It is idempotent; the
 # "Sync vscode-presets" task runs it on every folder open.
 #
 #   --schemas  also run the schemas hook of the enabled presets (needs the containers running)
 #   --force    overwrite generated files and snippet copies that were changed by hand
+#   --check    change nothing; report the state of the generated files, the environment and the presets
 set -euo pipefail
 CDPATH=
 # jq on Windows can end raw output lines with \r; every jq -r below strips it before the value is used.
@@ -16,13 +17,19 @@ CDPATH=
 repo=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 schemas=false
 force=false
+check=false
 for arg in "$@"; do
     case $arg in
         --schemas) schemas=true ;;
         --force) force=true ;;
+        --check) check=true ;;
         *) echo "Unknown option $arg" >&2; exit 2 ;;
     esac
 done
+if $check && { $force || $schemas; }; then
+    echo "--check only reports, so it cannot be combined with --force or --schemas" >&2
+    exit 2
+fi
 
 # The container sees the project at /app, and so this checkout at /app/.vscode: the presets point the container at
 # files in here (oro-dotenv.php, the schema scripts) instead of copying them.
@@ -36,13 +43,17 @@ vscode=$repo
 project=$(dirname "$repo")
 state=$vscode/.install-state
 local_settings=$vscode/settings.local.json
-mkdir -p "$state"
+$check || mkdir -p "$state"
 cd "$project"
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 local_json=$work/settings.local.json
 
-if [ ! -f "$local_settings" ]; then
+local_source=$local_settings
+if [ ! -f "$local_settings" ] && $check; then
+    # A check never writes; it judges the project as the first install would set it up.
+    local_source=$repo/settings.local.default.json
+elif [ ! -f "$local_settings" ]; then
     cp "$repo/settings.local.default.json" "$local_settings"
     echo "Created .vscode/settings.local.json from settings.local.default.json; change vscodePresets.enabled there"
     available=$(for dir in "$repo"/presets/*/; do name=$(basename "$dir"); [ "$name" = base ] || printf '%s ' "$name"; done)
@@ -50,7 +61,7 @@ if [ ! -f "$local_settings" ]; then
 fi
 # VS Code settings files often carry comments, so whole-line // comments are allowed here; everything below reads the
 # copy without them. A comment after a value on the same line is not supported.
-sed -e 's#^[[:space:]]*//.*$##' "$local_settings" > "$local_json"
+sed -e 's#^[[:space:]]*//.*$##' "$local_source" > "$local_json"
 if ! jq -e 'type == "object"' "$local_json" >/dev/null 2>&1; then
     echo ".vscode/settings.local.json is not valid JSON or not an object (only whole-line // comments are allowed); fix" >&2
     echo "it first." >&2
@@ -185,6 +196,70 @@ for name in "${generated[@]}"; do
     fi
     printf '%s\n%s\n' "$header" "$body" > "$work/$name.json"
 done
+
+# Snippet copies: <preset>-<file> in the root of .vscode, from presets/<preset>/snippets/.
+snippets=()
+for name in "${resolved[@]}"; do
+    for snippet in "$repo/presets/$name/snippets/"*.code-snippets; do
+        [ -e "$snippet" ] && snippets+=("$name-$(basename "$snippet")=$snippet")
+    done
+done
+
+export VSCODE_PRESETS_REPO=$repo
+VSCODE_PRESETS_RUNNER=$(jq -r '.runner // ""' <<< "$variables" | tr -d '\r')
+export VSCODE_PRESETS_RUNNER
+
+if $check; then
+    # shellcheck source=presets/base/scripts/check-lib.sh
+    . "$repo/presets/base/scripts/check-lib.sh"
+    report_file() {
+        local file=$1 new=$2 target=$vscode/$1 last=$state/$1
+        if cmp -s "$new" "$target"; then
+            ok ".vscode/$file is up to date"
+        elif [ ! -f "$target" ]; then
+            warn ".vscode/$file is missing; the next sync creates it"
+        elif [ -f "$last" ] && cmp -s "$target" "$last"; then
+            warn ".vscode/$file is out of date; the next sync updates it"
+        else
+            fail ".vscode/$file was changed by hand; the next sync refuses it until the change moves to settings.local.json"
+        fi
+    }
+    echo "Generated files"
+    [ -f "$local_settings" ] || warn ".vscode/settings.local.json is missing; the next sync creates it from the default"
+    for name in "${generated[@]}"; do
+        report_file "$name.json" "$work/$name.json"
+    done
+    for entry in ${snippets[@]+"${snippets[@]}"}; do
+        report_file "${entry%%=*}" "${entry#*=}"
+    done
+    echo "Environment"
+    if git -C "$project" rev-parse --is-inside-work-tree >/dev/null 2>&1 && ! git -C "$project" check-ignore -q .vscode/install.sh; then
+        fail ".vscode/ is not ignored by the project's git; add it to the global gitignore"
+    else
+        ok ".vscode/ stays out of the project's git"
+    fi
+    if [ -n "$VSCODE_PRESETS_RUNNER" ]; then
+        read -r -a run <<< "$VSCODE_PRESETS_RUNNER"
+        if version=$("${run[@]}" php -r 'echo PHP_VERSION;' 2>/dev/null | tr -d '\r' | tail -1) && [ -n "$version" ]; then
+            ok "\"$VSCODE_PRESETS_RUNNER php\" reaches PHP $version"
+        else
+            fail "\"$VSCODE_PRESETS_RUNNER php\" does not run; are the containers up?"
+        fi
+    fi
+    for name in "${resolved[@]}"; do
+        for hook in "$repo/presets/$name/hooks/"*.sh; do
+            [ -e "$hook" ] || continue
+            [ -x "$hook" ] || fail ".vscode/presets/$name/hooks/$(basename "$hook") is not executable (chmod +x)"
+        done
+        hook=$repo/presets/$name/hooks/check.sh
+        if [ -x "$hook" ]; then
+            echo "Preset $name"
+            "$hook" || checks_failed=1
+        fi
+    done
+    exit "$checks_failed"
+fi
+
 status=0
 for name in "${generated[@]}"; do
     install_file "$name.json" "$work/$name.json" || status=1
@@ -193,13 +268,9 @@ done
 # VS Code only reads snippets from the root of .vscode, so they are copied there as <preset>-<file>; the prefix shows
 # where each one comes from. The sync on folder open keeps the copies current.
 installed=()
-for name in "${resolved[@]}"; do
-    for snippet in "$repo/presets/$name/snippets/"*.code-snippets; do
-        [ -e "$snippet" ] || continue
-        file=$name-$(basename "$snippet")
-        installed+=("$file")
-        install_file "$file" "$snippet" || status=1
-    done
+for entry in ${snippets[@]+"${snippets[@]}"}; do
+    installed+=("${entry%%=*}")
+    install_file "${entry%%=*}" "${entry#*=}" || status=1
 done
 
 # Copies from an earlier install that no enabled preset wants any more (a disabled preset, a removed snippet). A copy
@@ -219,9 +290,6 @@ if [ -f "$list" ]; then
     done < "$list"
 fi
 printf '%s\n' ${installed[@]+"${installed[@]}"} > "$list" || status=1
-export VSCODE_PRESETS_REPO=$repo
-VSCODE_PRESETS_RUNNER=$(jq -r '.runner // ""' <<< "$variables" | tr -d '\r')
-export VSCODE_PRESETS_RUNNER
 run_hooks() {
     local name hook
     for name in "${resolved[@]}"; do

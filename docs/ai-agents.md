@@ -19,8 +19,11 @@ Start with the automated checks; they need no containers and also run in GitHub 
 
     .vscode/tests/run.sh
     .vscode/tests/lint.sh
+    composer install --working-dir .vscode/tests/php && php .vscode/tests/php/run.php
 
-A change to `install.sh`, a hook or a script needs a test in `tests/run.sh`. Then run these from the project root after changing a preset or `install.sh`:
+`tests/run.sh` covers `install.sh`, the hooks and the scripts; `tests/php/run.php` covers the schema library and the schemas in `presets/base/schemas/`. In the project itself, `.vscode/install.sh --check` must exit with 0.
+
+A change to `install.sh`, a hook or a script needs a test in `tests/run.sh`; a change to the schema library needs one in `tests/php/run.php`. A new preset also goes into the `vscodePresets.enabled` list of `presets/base/schemas/settings-local.schema.json`; a test fails when the two differ. Then run these from the project root after changing a preset or `install.sh`:
 
 1. `.vscode/install.sh` exits with 0.
 2. A second `.vscode/install.sh` prints only the `Presets:` line (plus hook messages) and changes no file outside `.install-state/`.
@@ -46,4 +49,4 @@ Booting the kernel in the container can rebuild the cache. Before and after anyt
 | Merge rules, written files, exit codes | [install-script.md](install-script.md) |
 | YAML schemas, generators, overlays | [yaml-schemas.md](yaml-schemas.md) |
 | Known problems and their checks | [troubleshooting.md](troubleshooting.md) |
-| Automated tests | `tests/run.sh`, `tests/lint.sh`, `.github/workflows/tests.yml` |
+| Automated tests | `tests/run.sh`, `tests/lint.sh`, `tests/php/run.php`, `.github/workflows/tests.yml` |

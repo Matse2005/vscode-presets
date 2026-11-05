@@ -38,6 +38,10 @@ To get changes from GitHub, run the "Update vscode-presets" task, or:
 
 The pull is fast-forward only, so it stops instead of merging when the checkout has commits of its own that are not pushed yet. Pulling is never automatic; only the install runs on folder open.
 
+"Check vscode-presets" (`.vscode/install.sh --check`) reports the state of the project without changing anything: the generated files, the git ignore, the container, and the checks of each preset. Run it first when something seems off.
+
+`.vscode/settings.local.json` and `presets/*/preset.json` get hover text and completion from the schemas in `presets/base/schemas/`, so the available preset names and keys show up while typing.
+
 ## Changing the presets
 
 Every checkout is a full clone. Change a preset in any project's `.vscode`, commit and push there, and pull in the other projects. Files that `install.sh` generates are gitignored, so `git -C .vscode status` only shows real changes to the presets.

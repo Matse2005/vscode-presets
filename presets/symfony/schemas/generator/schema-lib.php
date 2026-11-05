@@ -314,7 +314,9 @@ function writeSchema(string $out, string $overlayDir, string $name, array $gener
     foreach ($recursiveKeys as $key) {
         $generated = foldRecursion($generated, $key);
     }
-    $schema = ['$schema' => 'http://json-schema.org/draft-07/schema#', 'title' => $title] + emptyAsObject(allowNull($generated));
+    // emptyAsObject() turns a schema without any keys into an object, which cannot be added to the header array.
+    $body = emptyAsObject(allowNull($generated));
+    $schema = ['$schema' => 'http://json-schema.org/draft-07/schema#', 'title' => $title] + (is_array($body) ? $body : []);
     if (false === file_put_contents("$out/$name.schema.json", json_encode($schema, JSON_FLAGS | JSON_THROW_ON_ERROR)."\n")) {
         throw new RuntimeException("Could not write $name.schema.json");
     }

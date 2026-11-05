@@ -34,6 +34,22 @@ jobs:
         env:
           TEST_BASH: ${{ matrix.bash }}
 
+  schema-library:
+    name: schema library with Symfony ${{ matrix.symfony }}
+    strategy:
+      fail-fast: false
+      matrix:
+        symfony: ['6.4.*', '7.*']
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install the test dependencies for this Symfony version
+        run: |
+          composer require --working-dir tests/php --no-interaction --no-update "symfony/config:${{ matrix.symfony }}" "symfony/dependency-injection:${{ matrix.symfony }}"
+          composer update --working-dir tests/php --no-interaction --no-progress
+      - name: Run the schema library tests
+        run: php tests/php/run.php
+
   lint:
     name: JSON, PHP syntax and shellcheck
     runs-on: ubuntu-latest

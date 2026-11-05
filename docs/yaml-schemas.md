@@ -50,6 +50,10 @@ That runs the schemas hook of every enabled preset in dependency order: the symf
 
 Types are loose because Symfony normalizes values before it validates them. Unknown keys are allowed, and every key accepts `~`.
 
+## Tests
+
+`tests/php/run.php` tests the schema library without a project: config trees to schemas, overlays, writing, the run loop and its exit codes, and the bundle config with a test kernel through `KERNEL_CLASS`. It also builds every overlay of the repo and validates a sample services file against the result. CI runs it with Symfony 6.4 and 7.
+
 ## Known gaps
 
 - `sanitize.yml` and storefront `theme.yml` have no schema; their config trees need container services.

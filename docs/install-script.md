@@ -2,12 +2,13 @@
 
 `install.sh` turns the enabled presets and `settings.local.json` into the files VS Code reads. It is idempotent: a second run without changes leaves the generated files and the snippet copies untouched and only refreshes `.install-state/`.
 
-    .vscode/install.sh [--schemas] [--force]
+    .vscode/install.sh [--schemas] [--force] [--check]
 
 | Option | Effect |
 | --- | --- |
 | `--schemas` | Also runs the `hooks/schemas.sh` of the enabled presets. The oro one needs the containers running |
 | `--force` | Overwrites generated files and snippet copies that were changed by hand |
+| `--check` | Changes nothing and reports: whether the generated files and snippet copies are up to date, out of date or changed by hand, whether `.vscode/` is ignored by the project's git, whether the runner reaches PHP, and the result of each preset's `hooks/check.sh`. The "Check vscode-presets" task runs it. It cannot be combined with `--force` or `--schemas` (exit 2) |
 
 It only runs from a checkout named `.vscode`; the project is the folder above it.
 
@@ -77,3 +78,5 @@ Files are written to `.install-state/.new` and then moved over the target, so VS
 | 0 | Everything was installed |
 | 1 | Something was refused or failed: the checkout is not named `.vscode`, `jq` is missing, invalid `settings.local.json`, unknown preset, cycle, missing variable, empty runner, a file changed by hand, a failing or non-executable hook. When the failure is in building the settings or tasks, `settings.json`, `tasks.json` and the snippet copies are unchanged |
 | 2 | Unknown option |
+
+With `--check`, the exit code is 1 when a line reads `FAIL`, and 0 otherwise; `warn` lines do not count.
