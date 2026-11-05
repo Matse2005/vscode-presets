@@ -9,7 +9,7 @@ You are working in a checkout of this repo that is a project's `.vscode` folder.
 3. No paths outside the project in the presets or in anything `install.sh` writes. Refer to the checkout as `${workspaceFolder}/.vscode` in tasks and as `/app/.vscode` for the container. The only exception is the documentation path in `settings.local.default.json`. It reaches only gitignored files, `settings.local.json` and, through the "Link Oro documentation" task, `tasks.json`, and stays a `~` path in both.
 4. No symlinks in `.vscode`. Files VS Code needs in the root of `.vscode` are copied; everything else is used in place. The only link is `.orodocumentation` in the project root, made by the "Link Oro documentation" task.
 5. Do not turn `~` into a home directory in `install.sh`; a task or script expands it when it runs.
-6. Keep `install.sh` compatible with bash 3.2 (macOS) and with `set -euo pipefail`.
+6. Keep `install.sh`, the hooks and the scripts working with bash 3.2 (macOS), with Git Bash on Windows (strip `\r` from `jq -r` output, no reliance on the execute bit or on symlinks), and with `set -euo pipefail`. CI runs the tests on all three systems.
 7. A new kind of project gets a new preset folder, and `install.sh` stays as it is. See [presets](presets.md).
 8. Do not commit or push unless the user asks.
 

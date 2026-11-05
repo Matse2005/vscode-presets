@@ -1,3 +1,6 @@
 {
-  "prettier.configPath": ".vscode/presets/base/prettierrc.json"
+  "prettier.configPath": ".vscode/presets/base/prettierrc.json",
+  "terminal.integrated.automationProfile.windows": {
+    "path": "${env:ProgramFiles}\\Git\\bin\\bash.exe"
+  }
 }

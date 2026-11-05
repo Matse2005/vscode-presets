@@ -29,6 +29,7 @@ When something in the editor or the environment stops working (`Class "Extend\En
 | `presets/<name>/` | One folder per preset: `preset.json`, settings and task fragments, snippets, hooks, scripts |
 | `docs/` | This documentation |
 | `tests/` | `run.sh` tests the install script, hooks and scripts in throwaway projects; `lint.sh` checks JSON, PHP syntax, shellcheck and executable bits |
-| `.github/workflows/tests.yml` | Runs both on every push, the install tests on Ubuntu and on macOS with bash 3.2 |
+| `.gitattributes` | Keeps LF line endings in a Windows checkout, so the bash scripts run |
+| `.github/workflows/tests.yml` | Runs both on every push, the install tests on Ubuntu, on macOS with bash 3.2 and on Windows in Git Bash |
 
 The generated files, `settings.json`, `tasks.json`, `settings.local.json`, the `<preset>-*.code-snippets` copies and `.install-state/`, are written by `install.sh`, and `presets/oro/schemas/generated/` by the oro schemas hook. All of them are ignored by the repo's `.gitignore`.

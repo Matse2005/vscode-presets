@@ -6,7 +6,7 @@ A preset is a folder under `presets/` with everything one kind of project needs.
 
 | Preset | Requires | Adds |
 | --- | --- | --- |
-| `base` | | The "Sync vscode-presets" task and the Prettier config (`presets/base/prettierrc.json`). Always enabled |
+| `base` | | The "Sync vscode-presets" task, the Prettier config (`presets/base/prettierrc.json`) and Git Bash as the task shell on Windows. Always enabled |
 | `php` | | php-cs-fixer on save, Intelephense and file watcher excludes, PHPUnit in the container, the "Create php-cs-fixer local config" task |
 | `symfony` | `php` | Symfony LSP in the container, YAML custom tags (`!tagged_iterator`, `!tagged_locator`, `!php/const`, ...), snippets for Symfony YAML tags and service definitions |
 | `oro` | `symfony` | The Symfony LSP env fix (`oro-dotenv.php`), Oro snippets, the YAML schemas with hover text, the "Link Oro documentation" and "Regenerate YAML schemas" tasks |

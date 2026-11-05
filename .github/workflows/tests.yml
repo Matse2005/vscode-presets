@@ -16,9 +16,19 @@ jobs:
           # install.sh has to work with the bash 3.2 that macOS ships.
           - os: macos-latest
             bash: /bin/bash
+          # On Windows the presets run in Git Bash, which the runner has.
+          - os: windows-latest
+            bash: bash
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v4
+      - name: Install jq when the runner has none
+        run: command -v jq || choco install jq --no-progress -y
+      - name: Show the tool versions
+        run: bash --version | head -1 && jq --version && git --version
       - name: Run the install tests
         run: tests/run.sh
         env:

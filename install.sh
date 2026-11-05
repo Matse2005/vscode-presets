@@ -11,6 +11,7 @@
 #   --force    overwrite generated files and snippet copies that were changed by hand
 set -euo pipefail
 CDPATH=
+# jq on Windows can end raw output lines with \r; every jq -r below strips it before the value is used.
 
 repo=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 schemas=false
@@ -68,13 +69,13 @@ resolve() {
     resolving="$resolving$name "
     while IFS= read -r dependency; do
         [ -n "$dependency" ] && resolve "$dependency"
-    done < <(jq -r '.requires[]?' "$repo/presets/$name/preset.json")
+    done < <(jq -r '.requires[]?' "$repo/presets/$name/preset.json" | tr -d '\r')
     resolved+=("$name")
 }
 resolve base
 while IFS= read -r name; do
     resolve "$name"
-done < <(jq -r '."vscodePresets.enabled"[]?' "$local_settings")
+done < <(jq -r '."vscodePresets.enabled"[]?' "$local_settings" | tr -d '\r')
 echo "Presets: ${resolved[*]}"
 
 # Placeholder values: vscodePresets.<name> in settings.local.json, else the default of an enabled preset.
@@ -189,7 +190,7 @@ if [ -f "$list" ]; then
 fi
 printf '%s\n' ${installed[@]+"${installed[@]}"} > "$list" || status=1
 export VSCODE_PRESETS_REPO=$repo
-VSCODE_PRESETS_RUNNER=$(jq -r '.runner // ""' <<< "$variables")
+VSCODE_PRESETS_RUNNER=$(jq -r '.runner // ""' <<< "$variables" | tr -d '\r')
 export VSCODE_PRESETS_RUNNER
 run_hooks() {
     local name hook

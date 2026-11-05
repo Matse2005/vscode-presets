@@ -3,6 +3,10 @@
 # vscodePresets.oroDocumentation in .vscode/settings.local.json; the task passes it in ORO_DOCUMENTATION.
 set -euo pipefail
 
+# Git Bash on Windows copies the folder when it cannot make a real symlink; this makes ln fail instead. A real symlink
+# there needs Developer Mode or an administrator shell.
+case $(uname -s) in MINGW* | MSYS* | CYGWIN*) export MSYS=winsymlinks:nativestrict ;; esac
+
 src=${ORO_DOCUMENTATION:-}
 if [ -z "$src" ]; then
     echo "Set vscodePresets.oroDocumentation in .vscode/settings.local.json to the Oro documentation checkout."

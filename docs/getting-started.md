@@ -7,8 +7,10 @@ This repo is cloned as a project's `.vscode` folder. Every project gets its own 
 These are set up once per machine:
 
 1. The global gitignore contains `.vscode/`, `.php-cs-fixer.local.php` and `.orodocumentation`. Check where it is with `git config --global core.excludesFile`. The checkout itself must stay out of the project's git, and the presets write the other two files into the project root. `install.sh` warns when `.vscode/` is not ignored, and the php hook warns when an existing `.php-cs-fixer.local.php` is not. Nothing checks `.orodocumentation`.
-2. `jq` is on the PATH. Recent macOS versions ship it in `/usr/bin`; otherwise `brew install jq`.
+2. `jq` is on the PATH. Recent macOS versions ship it in `/usr/bin`; otherwise `brew install jq`. On Windows, `winget install jqlang.jq`.
 3. For the php, symfony and oro presets: the project runs in a container that mounts it at `/app`, with a command to run PHP in it (`kevin app` through the kevin preset, otherwise `vscodePresets.runner`, see [presets](presets.md)).
+
+On Windows, everything runs in Git Bash from Git for Windows: `install.sh`, the hooks, the scripts and the VS Code tasks. The base preset sets `terminal.integrated.automationProfile.windows` to `${env:ProgramFiles}\Git\bin\bash.exe`, the standard Git for Windows location, so VS Code runs the tasks there instead of in PowerShell. When Git is installed elsewhere, override that setting in `settings.local.json`. A plain `bash` is not used because on Windows it often resolves to WSL, which does not run in the same environment. Run the commands below from Git Bash. "Link Oro documentation" needs a real symlink, which Windows only allows with Developer Mode on or from an administrator shell; the script stops with an error instead of copying the folder.
 
 ## Installing in a project
 

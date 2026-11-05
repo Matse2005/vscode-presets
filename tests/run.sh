@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Tests install.sh, the hooks and the scripts in throwaway projects; nothing outside a temp folder is touched.
 # Runs locally and in CI without containers: tests/run.sh
-# TEST_BASH picks the shell that runs install.sh, so CI can test macOS's bash 3.2 (TEST_BASH=/bin/bash).
+# TEST_BASH picks the shell that runs install.sh, so CI can test macOS's bash 3.2 (TEST_BASH=/bin/bash). On Windows it
+# runs in Git Bash.
 set -uo pipefail
 
 repo=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
@@ -10,6 +11,7 @@ work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 passed=0
 failed=0
+skipped=0
 projects=0
 
 ok() {
@@ -21,6 +23,12 @@ not_ok() {
     failed=$((failed + 1))
     echo "  FAIL $1"
     if [ -s "$work/out" ]; then sed 's/^/       | /' "$work/out" | head -20; fi
+}
+
+# Only for what the platform cannot do at all, such as removing the execute bit in Git Bash on Windows.
+skip() {
+    skipped=$((skipped + 1))
+    echo "  skip $1"
 }
 
 check() {
@@ -52,12 +60,13 @@ set_local() {
     printf '%s\n' "$1" > "$project/.vscode/settings.local.json"
 }
 
+# jq on Windows can end its output with \r.
 settings() {
-    grep -v '^//' "$project/.vscode/settings.json" | jq -c "$1"
+    grep -v '^//' "$project/.vscode/settings.json" | jq -c "$1" | tr -d '\r'
 }
 
 tasks() {
-    grep -v '^//' "$project/.vscode/tasks.json" | jq -c "$1"
+    grep -v '^//' "$project/.vscode/tasks.json" | jq -c "$1" | tr -d '\r'
 }
 
 # A fingerprint of everything in .vscode except git, the install state and settings.local.json itself.
@@ -162,8 +171,12 @@ echo "hooks and options"
 new_project
 install
 chmod -x "$project/.vscode/presets/php/hooks/install.sh"
-check "a hook that is not executable fails the install" exit_code 1
-check "the skipped hook is reported" contains "$work/out" "it is not executable"
+if [ -x "$project/.vscode/presets/php/hooks/install.sh" ]; then
+    skip "a hook that is not executable fails the install (this file system has no execute bit)"
+else
+    check "a hook that is not executable fails the install" exit_code 1
+    check "the skipped hook is reported" contains "$work/out" "it is not executable"
+fi
 chmod +x "$project/.vscode/presets/php/hooks/install.sh"
 check "the php hook leaves .php-cs-fixer.local.php alone without .php-cs-fixer.php" test ! -e "$project/.php-cs-fixer.local.php"
 touch "$project/.php-cs-fixer.php"
@@ -188,5 +201,5 @@ touch "$work/not-a-project/var/cache/keep"
 check "start-kevin.sh refuses a folder without bin/console" sh -c "! '$project/.vscode/presets/kevin/scripts/start-kevin.sh' '$work/not-a-project' > '$work/out' 2>&1 && [ -f '$work/not-a-project/var/cache/keep' ]"
 
 echo
-echo "$passed passed, $failed failed"
+echo "$passed passed, $failed failed, $skipped skipped"
 [ "$failed" -eq 0 ]
