@@ -1,0 +1,6 @@
+{
+  "recommendations": [
+    "symfony.language-tools",
+    "redhat.vscode-yaml"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "configurations": [
+    {
+      "name": "Listen for Xdebug in the container",
+      "type": "php",
+      "request": "launch",
+      "port": 9003,
+      "pathMappings": {
+        "/app": "${workspaceFolder}"
+      }
+    }
+  ]
+}

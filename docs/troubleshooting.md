@@ -46,6 +46,16 @@ Check that `.php-cs-fixer.local.php` exists in the project root (the php hook cr
 
 The PHPUnit extension runs `kevin app php bin/phpunit` (with the kevin preset). Without `bin/phpunit`, set `"phpunit.phpunit": "vendor/bin/phpunit"` in `settings.local.json`. If results stop linking to files on macOS, set `phpunit.paths` in `settings.local.json` with the absolute project path instead of `${workspaceFolder}`; the extension documents that the variable does not always resolve there. Reload the window after changing settings; in my experience the extension only picked them up after a reload.
 
+## Xdebug does not stop at breakpoints
+
+The php preset adds "Listen for Xdebug in the container" to `launch.json`: port 9003 with `/app` mapped to the project. With Kevin, Xdebug is off in the application container by default; the container's start script removes the extension while `XDEBUG_MODE` is `off`. To switch it on:
+
+1. Set `XDEBUG_MODE=debug` in `.env.kevin.local` in the project root.
+2. Recreate the container: `kevin recreate <project>-application`.
+3. Start "Listen for Xdebug in the container" in VS Code.
+
+The project's PHP overrides (`.25carat/docker/php/php-overrides.ini`) set `xdebug.start_with_request=yes` and `xdebug.client_host=host.docker.internal`, and no port, so Xdebug uses its default 9003. For a CLI command, Kevin's documentation adds `XDEBUG_TRIGGER=yes`, for example `XDEBUG_TRIGGER=yes kevin console oro:check-requirements`. Set `XDEBUG_MODE` back to `off` and recreate the container afterwards, because Xdebug slows every request down.
+
 ## YAML hover text missing
 
-Run `.vscode/install.sh --schemas` with the containers running, then reload the window. If the validator reports errors, a schema is too strict; see [YAML schemas](yaml-schemas.md).
+Run `.vscode/install.sh --schemas` with the containers running, then reload the window. The bundle config, service and routing schemas come from the symfony preset and the Oro ones from the oro preset, so both have to be enabled for an Oro project. If the validator reports errors, a schema is too strict; see [YAML schemas](yaml-schemas.md).

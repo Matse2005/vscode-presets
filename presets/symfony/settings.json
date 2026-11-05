@@ -25,5 +25,33 @@
   ],
   "files.watcherExclude": {
     "**/var/**": true
+  },
+  "yaml.schemas": {
+    "./.vscode/presets/symfony/schemas/generated/symfony-config.schema.json": [
+      "config/config*.yml",
+      "config/config*.yaml",
+      "config/security*.yml",
+      "config/security*.yaml",
+      "config/packages/**/*.yml",
+      "config/packages/**/*.yaml"
+    ],
+    "./.vscode/presets/symfony/schemas/generated/symfony-services.schema.json": [
+      "config/services*.yml",
+      "config/services*.yaml",
+      "config/services/**/*.yml",
+      "config/services/**/*.yaml",
+      "**/Resources/config/services*.yml",
+      "**/Resources/config/services*.yaml"
+    ],
+    "./.vscode/presets/symfony/schemas/generated/symfony-routing.schema.json": [
+      "config/routing*.yml",
+      "config/routing*.yaml",
+      "config/routing/**/*.yml",
+      "config/routing/**/*.yaml",
+      "config/routes*.yml",
+      "config/routes*.yaml",
+      "config/routes/**/*.yml",
+      "config/routes/**/*.yaml"
+    ]
   }
 }

@@ -1,6 +1,8 @@
 # Written by install.sh in the checkout that is a project's .vscode folder; never part of the repo.
 /settings.json
 /tasks.json
+/extensions.json
+/launch.json
 /settings.local.json
 /*.code-snippets
 /.install-state/

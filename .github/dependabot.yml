@@ -1,0 +1,8 @@
+# Opens a pull request when an action used by the workflows has a new version, so deprecations such as the
+# Node.js 20 runtime do not pile up.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

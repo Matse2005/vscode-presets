@@ -13,6 +13,17 @@
       "runOptions": {
         "runOn": "folderOpen"
       }
+    },
+    {
+      "label": "Update vscode-presets",
+      "type": "shell",
+      "command": "git -C \"${workspaceFolder}/.vscode\" pull --ff-only && \"${workspaceFolder}/.vscode/install.sh\"",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "problemMatcher": []
     }
   ]
 }

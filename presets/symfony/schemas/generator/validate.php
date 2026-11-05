@@ -65,7 +65,7 @@ $only = array_filter(explode(',', (string) getenv('ONLY')));
 $total = 0;
 foreach ($mapping as $schemaPath => $globs) {
     $name = basename($schemaPath, '.schema.json');
-    if ($only && !in_array($name, $only, true)) {
+    if ($only && !array_filter($only, fn ($pattern) => fnmatch($pattern, $name))) {
         continue;
     }
     $schemaFile = ROOT.'/'.preg_replace('#^\./#', '', $schemaPath);

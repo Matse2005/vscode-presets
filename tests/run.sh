@@ -69,6 +69,14 @@ tasks() {
     grep -v '^//' "$project/.vscode/tasks.json" | jq -c "$1" | tr -d '\r'
 }
 
+extensions() {
+    grep -v '^//' "$project/.vscode/extensions.json" | jq -c "$1" | tr -d '\r'
+}
+
+launch() {
+    grep -v '^//' "$project/.vscode/launch.json" | jq -c "$1" | tr -d '\r'
+}
+
 # A fingerprint of everything in .vscode except git, the install state and settings.local.json itself.
 fingerprint() {
     (cd "$project/.vscode" && find . -path ./.git -prune -o -path ./.install-state -prune -o -type f ! -name settings.local.json -print \
@@ -105,10 +113,15 @@ check "the runner is split into words in the LSP command" test "$(settings '.["s
 check "the oro preset prepends oro-dotenv.php" contains "$project/.vscode/settings.json" "auto_prepend_file=/app/.vscode/presets/oro/oro-dotenv.php"
 check "the oro preset appends to the php excludes" test "$(settings '.["intelephense.files.exclude"] | (index("**/.git/**") != null) and (index("**/public/bundles/**") != null)')" = true
 check "vscodePresets keys stay out of settings.json" test "$(settings '[keys[] | select(startswith("vscodePresets."))] | length')" = 0
-check "the tasks of all presets are there" test "$(tasks '[.tasks[].label] | sort')" = '["Create php-cs-fixer local config","Link Oro documentation","Regenerate YAML schemas","Restart Kevin with a clean cache","Sync vscode-presets"]'
+check "the tasks of all presets are there" test "$(tasks '[.tasks[].label] | sort')" = '["Create php-cs-fixer local config","Link Oro documentation","Regenerate YAML schemas","Restart Kevin with a clean cache","Sync vscode-presets","Update vscode-presets"]'
+check "the update task pulls fast-forward only and installs" test "$(tasks '.tasks[] | select(.label == "Update vscode-presets") | .command | test("pull --ff-only && .*/install.sh")')" = true
+check "extensions.json recommends the extensions of all presets" test "$(extensions '.recommendations')" = '["esbenp.prettier-vscode","junstyle.php-cs-fixer","bmewburn.vscode-intelephense-client","recca0120.vscode-phpunit","xdebug.php-debug","symfony.language-tools","redhat.vscode-yaml"]'
+check "launch.json listens for Xdebug with /app mapped to the project" test "$(launch '.configurations[0] | [.type, .port, .pathMappings["/app"]]')" = '["php",9003,"${workspaceFolder}"]'
+check "the symfony and oro schemas are mapped from their own presets" test "$(settings '."yaml.schemas" | keys | map(split("/")[3]) | unique')" = '["oro","symfony"]'
+check "Oro adds its own files to the symfony config schema" test "$(settings '."yaml.schemas"["./.vscode/presets/symfony/schemas/generated/symfony-config.schema.json"] | index("**/Resources/config/oro/app.yml") != null')" = true
 check "the sync task runs on folder open" test "$(tasks '.tasks[] | select(.label == "Sync vscode-presets") | .runOptions.runOn')" = '"folderOpen"'
-check "no generated file contains the project path" sh -c "! grep -rqF '$project' '$project/.vscode/settings.json' '$project/.vscode/tasks.json' '$project/.vscode/'*.code-snippets"
-check "no generated file contains the home folder" sh -c "! grep -rqF '$HOME' '$project/.vscode/settings.json' '$project/.vscode/tasks.json'"
+check "no generated file contains the project path" sh -c "! grep -rqF '$project' '$project/.vscode/'*.json '$project/.vscode/'*.code-snippets"
+check "no generated file contains the home folder" sh -c "! grep -qF '$HOME' '$project/.vscode/settings.json' '$project/.vscode/tasks.json' '$project/.vscode/extensions.json' '$project/.vscode/launch.json'"
 check "~ in the documentation path is not expanded" test "$(tasks '.tasks[] | select(.label == "Link Oro documentation") | .options.env.ORO_DOCUMENTATION')" = '"~/Work/orodocumentation"'
 check "git in the checkout sees nothing install.sh wrote" test -z "$(git -C "$project/.vscode" status --porcelain)"
 before=$(fingerprint)
@@ -126,13 +139,37 @@ check "a key ending in + appends to the preset list" test "$(settings '.["intele
 check "a local key overrides a preset value" test "$(settings '.["php-cs-fixer.onsave"]')" = false
 check "disabling presets removes their snippet copies" test ! -e "$project/.vscode/oro-yaml.code-snippets" -a ! -e "$project/.vscode/symfony-yaml.code-snippets"
 check "disabling presets removes their settings" test "$(settings 'has("symfonyLsp.phpCommand") or has("yaml.schemas")')" = false
+check "disabling presets removes their extension recommendations" test "$(extensions '.recommendations | index("redhat.vscode-yaml")')" = null
+set_local '// presets for this project
+{
+  // only php here
+  "vscodePresets.enabled": ["php"],
+  "vscodePresets.runner": "ddev exec",
+  "vscodePresets.extensions": ["xdebug.php-debug", "eamodio.gitlens"],
+  "vscodePresets.launch": [{"name": "Mine", "type": "php", "request": "launch", "port": 9010}]
+}'
+check "whole-line comments in settings.local.json are allowed" exit_code 0
+check "vscodePresets.extensions adds recommendations once" test "$(extensions '.recommendations | [length, (map(select(. == "xdebug.php-debug")) | length), .[-1]]')" = '[6,1,"eamodio.gitlens"]'
+check "vscodePresets.launch adds a configuration after the presets" test "$(launch '[.configurations[].name]')" = '["Listen for Xdebug in the container","Mine"]'
+check "vscodePresets.extensions and launch stay out of settings.json" test "$(settings '[keys[] | select(startswith("vscodePresets"))] | length')" = 0
+
+echo "a Symfony project without Oro"
+new_project
+set_local '{"vscodePresets.enabled": ["symfony", "kevin"]}'
+check "symfony and kevin install" exit_code 0
+check "the symfony schemas map .yaml files too" test "$(settings '."yaml.schemas"["./.vscode/presets/symfony/schemas/generated/symfony-routing.schema.json"] | index("config/routes/**/*.yaml") != null')" = true
+check "no Oro schema is mapped" test "$(settings '[."yaml.schemas" | keys[] | select(contains("/oro/"))] | length')" = 0
+check "no Oro prepend in the LSP command" sh -c "! grep -q oro-dotenv '$project/.vscode/settings.json'"
+set_local '{"vscodePresets.enabled": ["symfony"], "vscodePresets.runner": "echo"}'
+install --schemas
+check "--schemas runs only the symfony generator" sh -c "grep -q /app/.vscode/presets/symfony/schemas/generator/generate.php '$work/out' && ! grep -q /oro/ '$work/out'"
 
 echo "refusals that leave .vscode unchanged"
 new_project
 install
-set_local '{"vscodePresets.enabled": ["oro"] // comment
+set_local '{"vscodePresets.enabled": ["oro"] // a comment after a value
 }'
-check "a comment in settings.local.json" refused_unchanged
+check "a comment after a value in settings.local.json" refused_unchanged
 set_local '{"vscodePresets.enabled": "oro"}'
 check "enabled as a string" refused_unchanged
 set_local '{"vscodePresets.enabled": ["../oro"]}'
@@ -184,8 +221,9 @@ install
 check "the php hook creates .php-cs-fixer.local.php" contains "$project/.php-cs-fixer.local.php" "return require __DIR__.'/.php-cs-fixer.php';"
 set_local '{"vscodePresets.enabled": ["oro"], "vscodePresets.runner": "echo"}'
 install --schemas
-check "--schemas runs the oro hook through the runner: generator" contains "$work/out" "/app/.vscode/presets/oro/schemas/generator/generate.php"
-check "--schemas runs the oro hook through the runner: validator" contains "$work/out" "/app/.vscode/presets/oro/schemas/generator/validate.php"
+check "--schemas runs the symfony generator" contains "$work/out" "/app/.vscode/presets/symfony/schemas/generator/generate.php"
+check "--schemas runs the oro generator after it" sh -c "grep -n generate.php '$work/out' | head -1 | grep -q symfony && grep -q /app/.vscode/presets/oro/schemas/generator/generate.php '$work/out'"
+check "--schemas validates the symfony and the oro schemas separately" sh -c "grep -qF 'env ONLY=symfony-* php' '$work/out' && grep -qF 'env ONLY=oro-* php' '$work/out'"
 check "an unknown option exits with 2" exit_code 2 --unknown
 mkdir -p "$work/elsewhere"
 cp -R "$project/.vscode/." "$work/elsewhere/"

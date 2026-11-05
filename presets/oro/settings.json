@@ -170,21 +170,25 @@
       "**/Resources/config/oro/workflows.yml",
       "**/Resources/config/oro/workflows/**/*.yml"
     ],
-    "./.vscode/presets/oro/schemas/generated/symfony-config.schema.json": [
+    "./.vscode/presets/symfony/schemas/generated/symfony-config.schema.json": [
       "config/config*.yml",
+      "config/config*.yaml",
       "config/security*.yml",
+      "config/security*.yaml",
       "config/packages/**/*.yml",
+      "config/packages/**/*.yaml",
       "**/Resources/config/oro/app.yml"
     ],
-    "./.vscode/presets/oro/schemas/generated/symfony-routing.schema.json": [
+    "./.vscode/presets/symfony/schemas/generated/symfony-routing.schema.json": [
       "config/routing*.yml",
+      "config/routing*.yaml",
       "config/routing/**/*.yml",
+      "config/routing/**/*.yaml",
+      "config/routes*.yml",
+      "config/routes*.yaml",
+      "config/routes/**/*.yml",
+      "config/routes/**/*.yaml",
       "**/Resources/config/oro/routing.yml"
-    ],
-    "./.vscode/presets/oro/schemas/generated/symfony-services.schema.json": [
-      "config/services*.yml",
-      "config/services/**/*.yml",
-      "**/Resources/config/services*.yml"
     ]
   }
 }

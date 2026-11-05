@@ -38,6 +38,9 @@ state=$vscode/.install-state
 local_settings=$vscode/settings.local.json
 mkdir -p "$state"
 cd "$project"
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+local_json=$work/settings.local.json
 
 if [ ! -f "$local_settings" ]; then
     cp "$repo/settings.local.default.json" "$local_settings"
@@ -45,12 +48,16 @@ if [ ! -f "$local_settings" ]; then
     available=$(for dir in "$repo"/presets/*/; do name=$(basename "$dir"); [ "$name" = base ] || printf '%s ' "$name"; done)
     echo "if this project needs other presets (available: ${available% })."
 fi
-if ! jq -e 'type == "object"' "$local_settings" >/dev/null 2>&1; then
-    echo ".vscode/settings.local.json is not valid JSON (comments are not allowed) or not an object; fix it first." >&2
+# VS Code settings files often carry comments, so whole-line // comments are allowed here; everything below reads the
+# copy without them. A comment after a value on the same line is not supported.
+sed -e 's#^[[:space:]]*//.*$##' "$local_settings" > "$local_json"
+if ! jq -e 'type == "object"' "$local_json" >/dev/null 2>&1; then
+    echo ".vscode/settings.local.json is not valid JSON or not an object (only whole-line // comments are allowed); fix" >&2
+    echo "it first." >&2
     echo "Nothing was changed." >&2
     exit 1
 fi
-if ! jq -e '(."vscodePresets.enabled" // []) | type == "array" and all(type == "string" and test("^[a-z0-9_-]+$"))' "$local_settings" >/dev/null; then
+if ! jq -e '(."vscodePresets.enabled" // []) | type == "array" and all(type == "string" and test("^[a-z0-9_-]+$"))' "$local_json" >/dev/null; then
     echo "vscodePresets.enabled in .vscode/settings.local.json must be a list of preset names. Nothing was changed." >&2
     exit 1
 fi
@@ -75,15 +82,15 @@ resolve() {
 resolve base
 while IFS= read -r name; do
     resolve "$name"
-done < <(jq -r '."vscodePresets.enabled"[]?' "$local_settings" | tr -d '\r')
+done < <(jq -r '."vscodePresets.enabled"[]?' "$local_json" | tr -d '\r')
 echo "Presets: ${resolved[*]}"
 
 # Placeholder values: vscodePresets.<name> in settings.local.json, else the default of an enabled preset.
 variables=$(
     for name in "${resolved[@]}"; do jq '.defaults // {}' "$repo/presets/$name/preset.json"; done \
-        | jq -s --slurpfile local "$local_settings" '
+        | jq -s --slurpfile local "$local_json" '
             add + ($local[0] | with_entries(select(.key | startswith("vscodePresets.")) | .key |= ltrimstr("vscodePresets.")))
-            | del(.enabled)
+            | del(.enabled, .extensions, .launch)
             | if .runner then .runner |= ([splits("\\s+") | select(length > 0)] | join(" ")) else . end'
 )
 # Values are written into the generated files as they are: a path of your own stays in settings.local.json and is not
@@ -109,7 +116,7 @@ merged_settings() {
         for name in "${resolved[@]}"; do
             if [ -f "$repo/presets/$name/settings.json" ]; then cat "$repo/presets/$name/settings.json"; fi
         done
-        jq 'with_entries(select(.key | startswith("vscodePresets.") | not))' "$local_settings"
+        jq 'with_entries(select(.key | startswith("vscodePresets.") | not))' "$local_json"
     } | jq -s '
         reduce .[] as $layer ({};
             (. * ($layer | with_entries(select(.key | endswith("+") | not))))
@@ -121,6 +128,28 @@ merged_tasks() {
     for name in "${resolved[@]}"; do
         if [ -f "$repo/presets/$name/tasks.json" ]; then cat "$repo/presets/$name/tasks.json"; fi
     done | jq -s '{version: "2.0.0", tasks: (map(.tasks) | add // [])}' | render
+}
+
+# Extension recommendations of all presets plus vscodePresets.extensions, each once, in preset order. VS Code offers to
+# install the missing ones when the folder opens.
+merged_extensions() {
+    {
+        for name in "${resolved[@]}"; do
+            if [ -f "$repo/presets/$name/extensions.json" ]; then cat "$repo/presets/$name/extensions.json"; fi
+        done
+        jq '{recommendations: (."vscodePresets.extensions" // [])}' "$local_json"
+    } | jq -s '{recommendations: (map(.recommendations // []) | add // []
+        | reduce .[] as $id ([]; if index([$id]) then . else . + [$id] end))}'
+}
+
+# Launch configurations of all presets plus vscodePresets.launch, for configurations of your own.
+merged_launch() {
+    {
+        for name in "${resolved[@]}"; do
+            if [ -f "$repo/presets/$name/launch.json" ]; then cat "$repo/presets/$name/launch.json"; fi
+        done
+        jq '{configurations: (."vscodePresets.launch" // [])}' "$local_json"
+    } | jq -s '{version: "0.2.0", configurations: (map(.configurations // []) | add // [])}' | render
 }
 
 # Every file install.sh puts in the root of .vscode is only overwritten while it still matches what this script wrote
@@ -145,20 +174,21 @@ install_file() {
     fi
 }
 
-# Both files are built before anything in .vscode changes: a failing jq (a typo, an unknown variable) must leave the
-# project exactly as it was, not with an empty settings.json or half the presets applied.
+# All generated files are built before anything in .vscode changes: a failing jq (a typo, an unknown variable) must
+# leave the project exactly as it was, not with an empty settings.json or half the presets applied.
 header="// Generated by .vscode/install.sh from the enabled presets. Edit .vscode/settings.local.json or the presets instead."
-if ! settings_body=$(merged_settings) || [ -z "$settings_body" ] || ! tasks_body=$(merged_tasks) || [ -z "$tasks_body" ]; then
-    echo "Could not build settings.json or tasks.json (see the error above). Nothing was changed." >&2
-    exit 1
-fi
+generated=(settings tasks extensions launch)
+for name in "${generated[@]}"; do
+    if ! body=$("merged_$name") || [ -z "$body" ]; then
+        echo "Could not build $name.json (see the error above). Nothing was changed." >&2
+        exit 1
+    fi
+    printf '%s\n%s\n' "$header" "$body" > "$work/$name.json"
+done
 status=0
-tmp=$(mktemp)
-trap 'rm -f "$tmp"' EXIT
-printf '%s\n%s\n' "$header" "$settings_body" > "$tmp"
-install_file settings.json "$tmp" || status=1
-printf '%s\n%s\n' "$header" "$tasks_body" > "$tmp"
-install_file tasks.json "$tmp" || status=1
+for name in "${generated[@]}"; do
+    install_file "$name.json" "$work/$name.json" || status=1
+done
 
 # VS Code only reads snippets from the root of .vscode, so they are copied there as <preset>-<file>; the prefix shows
 # where each one comes from. The sync on folder open keeps the copies current.

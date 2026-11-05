@@ -25,17 +25,18 @@ To also build the YAML schemas of the oro preset, start the containers and run:
 
     .vscode/install.sh --schemas
 
-Reload the VS Code window afterwards, so the extensions read the new settings.
+Reload the VS Code window afterwards, so the extensions read the new settings. VS Code then offers to install the extensions in the generated `.vscode/extensions.json` that are missing, which on a new machine sets them all up at once.
 
 ## Keeping it up to date
 
 The "Sync vscode-presets" task runs `install.sh` on every folder open. In my setup VS Code only ran it automatically after I allowed automatic tasks for the folder once; otherwise run it from the Command Palette with "Tasks: Run Task".
 
-To get changes from GitHub:
+To get changes from GitHub, run the "Update vscode-presets" task, or:
 
-    git -C .vscode pull
+    git -C .vscode pull --ff-only
+    .vscode/install.sh
 
-The next folder open, or a manual `.vscode/install.sh`, applies them.
+The pull is fast-forward only, so it stops instead of merging when the checkout has commits of its own that are not pushed yet. Pulling is never automatic; only the install runs on folder open.
 
 ## Changing the presets
 
