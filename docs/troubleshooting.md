@@ -42,6 +42,10 @@ The messages name the cause: `settings.local.json` is not valid JSON (comments a
 
 Check that `.php-cs-fixer.local.php` exists in the project root (the php hook creates it when `.php-cs-fixer.php` exists, or run "Create php-cs-fixer local config") and that `bin/php-cs-fixer` exists.
 
+## Format Document with php-cs-fixer resulted in an error
+
+The extension calls a run that changed nothing an error when the fixer prints more than one line on stderr. `php-cs-fixer.executablePath` should point to `.vscode/presets/php/scripts/php-cs-fixer.sh`, which trims that output; check `settings.json` and run the sync if it still points to `bin/php-cs-fixer`. If the error stays, the output panel ("php-cs-fixer") shows the full stderr of the failed run.
+
 ## PHPUnit tests do not run or do not link to files
 
 The PHPUnit extension runs `kevin app php bin/phpunit` (with the kevin preset). Without `bin/phpunit`, set `"phpunit.phpunit": "vendor/bin/phpunit"` in `settings.local.json`. If results stop linking to files on macOS, set `phpunit.paths` in `settings.local.json` with the absolute project path instead of `${workspaceFolder}`; the extension documents that the variable does not always resolve there. Reload the window after changing settings; in my experience the extension only picked them up after a reload.

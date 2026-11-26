@@ -110,6 +110,7 @@ check "settings.json is valid JSON after its header" test "$(settings 'type == "
 check "the snippets are copied with the preset as prefix" test -f "$project/.vscode/oro-yaml.code-snippets" -a -f "$project/.vscode/symfony-yaml.code-snippets" -a -f "$project/.vscode/symfony-services.code-snippets"
 check "no snippet or generated file is a symlink" test -z "$(find "$project/.vscode" -path "$project/.vscode/.git" -prune -o -type l -print)"
 check "the runner is split into words in the LSP command" test "$(settings '.["symfonyLsp.phpCommand"][0:3]')" = '["kevin","app","php"]'
+check "the php preset runs the fixer through php-cs-fixer.sh" test "$(settings '.["php-cs-fixer.executablePath"]')" = '"${workspaceFolder}/.vscode/presets/php/scripts/php-cs-fixer.sh"'
 check "the oro preset prepends oro-dotenv.php" contains "$project/.vscode/settings.json" "auto_prepend_file=/app/.vscode/presets/oro/oro-dotenv.php"
 check "the oro preset appends to the php excludes" test "$(settings '.["intelephense.files.exclude"] | (index("**/.git/**") != null) and (index("**/public/bundles/**") != null)')" = true
 check "vscodePresets keys stay out of settings.json" test "$(settings '[keys[] | select(startswith("vscodePresets."))] | length')" = 0
@@ -289,6 +290,13 @@ check "link-documentation.sh expands ~ when it runs" sh -c "HOME='$work/home' OR
 mkdir -p "$work/not-a-project/var/cache"
 touch "$work/not-a-project/var/cache/keep"
 check "start-kevin.sh refuses a folder without bin/console" sh -c "! '$project/.vscode/presets/kevin/scripts/start-kevin.sh' '$work/not-a-project' > '$work/out' 2>&1 && [ -f '$work/not-a-project/var/cache/keep' ]"
+# A fixer that answers like php-cs-fixer 3: the JSON report on stdout, several informational lines on stderr.
+mkdir -p "$project/bin" "$work/fixer-cwd"
+printf '#!/usr/bin/env bash\necho "{\\"files\\":[]}"\nprintf "banner\\nruntime\\nanalysis\\n" >&2\nexit "${FIXER_EXIT:-0}"\n' > "$project/bin/php-cs-fixer"
+chmod +x "$project/bin/php-cs-fixer"
+fixer=$project/.vscode/presets/php/scripts/php-cs-fixer.sh
+check "php-cs-fixer.sh passes only the first stderr line on success" sh -c "cd '$work/fixer-cwd' && '$fixer' fix > '$work/stdout' 2> '$work/out' && [ \"\$(cat '$work/out')\" = banner ] && [ \"\$(cat '$work/stdout')\" = '{\"files\":[]}' ]"
+check "php-cs-fixer.sh passes all of stderr and the exit code on failure" sh -c "cd '$work/fixer-cwd' && FIXER_EXIT=16 '$fixer' fix > /dev/null 2> '$work/out'; [ \$? -eq 16 ] && [ \"\$(wc -l < '$work/out' | tr -d ' ')\" = 3 ]"
 
 echo
 echo "$passed passed, $failed failed, $skipped skipped"

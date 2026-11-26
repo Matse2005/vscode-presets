@@ -1,5 +1,5 @@
 {
-  "php-cs-fixer.executablePath": "${workspaceFolder}/bin/php-cs-fixer",
+  "php-cs-fixer.executablePath": "${workspaceFolder}/.vscode/presets/php/scripts/php-cs-fixer.sh",
   "php-cs-fixer.config": ".php-cs-fixer.local.php",
   "php-cs-fixer.onsave": true,
   "php-cs-fixer.allowRisky": false,

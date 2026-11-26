@@ -56,6 +56,8 @@ Without the `kevin` preset, a project with `php` must set `vscodePresets.runner`
 
 php-cs-fixer runs on save with `.php-cs-fixer.local.php` as its config. VS Code runs the fixer from another directory, so that file does `chdir(__DIR__)` and returns the committed `.php-cs-fixer.php`; on-save fixing then uses the same config as a `php-cs-fixer` run from the project root. The install hook creates the file when the project has `.php-cs-fixer.php` and the file is missing.
 
+The extension runs `bin/php-cs-fixer` through `presets/php/scripts/php-cs-fixer.sh`. The extension reports a run that changed nothing as an error when stderr has more than one line, and php-cs-fixer 3 always prints several, so "Format Document" on a file that is already clean failed. The script passes on only the first stderr line when the fixer succeeds, and all of it when the fixer fails.
+
 "Listen for Xdebug in the container" in `launch.json` listens on port 9003, the Xdebug 3 default, and maps `/app` in the container to the project. It needs Xdebug switched on in the container; for Kevin that is `XDEBUG_MODE=debug` in `.env.kevin.local` and `kevin recreate <project>-application`, see [troubleshooting](troubleshooting.md).
 
 The PHPUnit extension (`recca0120.vscode-phpunit`) runs `{{runner}} php bin/phpunit` and maps the project to `/app` with `phpunit.paths`. `bin/phpunit` exists in projects that set Composer's `bin-dir` to `bin`. In other projects, set `"phpunit.phpunit": "vendor/bin/phpunit"` in `settings.local.json`.
